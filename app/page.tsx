@@ -1,9 +1,20 @@
-import { Button } from "@/components/ui/button"
+import { FeaturedProperties } from "@/components/home/featured-properties"
+import { HeroSection } from "@/components/home/hero-section"
+import { OwnerCta } from "@/components/home/owner-cta"
+import { SiteFooter } from "@/components/layout/site-footer"
+import { SiteHeader } from "@/components/layout/site-header"
 
 export default function Page() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-24">
-      <Button>Click me</Button>
+    <div className="min-h-screen overflow-x-clip bg-background text-foreground">
+      <SiteHeader />
+      <main>
+        <HeroSection />
+        <FeaturedProperties />
+        <OwnerCta />
+      </main>
+      <SiteFooter />
     </div>
   )
 }
+
