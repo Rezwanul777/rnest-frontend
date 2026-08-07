@@ -14,6 +14,11 @@ export type PaginationMeta = {
 export type ApiErrorResponse = {
   success?: boolean
   message?: string
+  errorDetails?: Array<{
+    field?: string
+    path?: string
+    message?: string
+  }>
   errorSources?: Array<{
     path?: string
     message?: string
