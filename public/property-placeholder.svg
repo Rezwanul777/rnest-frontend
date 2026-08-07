@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title description">
+  <title id="title">Property image placeholder</title>
+  <desc id="description">A simple illustration of a rental home.</desc>
+  <rect width="1200" height="800" fill="#0d1b34"/>
+  <path d="M225 420 600 145l375 275v235a55 55 0 0 1-55 55H280a55 55 0 0 1-55-55Z" fill="#172a49"/>
+  <path d="m175 435 425-315 425 315" fill="none" stroke="#f6b84a" stroke-linecap="round" stroke-linejoin="round" stroke-width="42"/>
+  <path d="M505 710V475h190v235" fill="#f6b84a" opacity=".9"/>
+  <circle cx="600" cy="585" r="12" fill="#0d1b34"/>
+</svg>

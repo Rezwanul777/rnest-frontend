@@ -1,11 +1,9 @@
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
 
-
+import { BrandLogo } from "@/components/shared/brand-logo"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
-
-import { ThemeToggle } from '@/components/theme-toggle';
-import { BrandLogo } from "../shared/brand-logo";
 
 const navigation = [
   { label: "Discover", href: "/properties" },

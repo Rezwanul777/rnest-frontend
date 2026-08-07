@@ -16,6 +16,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import type { Category, Property } from "@/types/property"
 
 const trustPoints = [
   { label: "Verified listings", icon: ShieldCheck },
@@ -23,7 +24,21 @@ const trustPoints = [
   { label: "Real reviews", icon: Star },
 ]
 
-export function HeroSection() {
+type HeroSectionProps = {
+  categories: Category[]
+  featuredProperty: Property | null
+  propertyCount: number
+}
+
+const taka = new Intl.NumberFormat("en-BD")
+
+export function HeroSection({
+  categories,
+  featuredProperty,
+  propertyCount,
+}: HeroSectionProps) {
+  const featuredLocation = featuredProperty?.location.split(",")[0]
+
   return (
     <section className="rentnest-grid relative overflow-hidden border-b">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_28%_20%,rgba(246,184,74,0.12),transparent_32%),radial-gradient(circle_at_80%_35%,rgba(52,211,153,0.07),transparent_25%)]" />
@@ -67,22 +82,22 @@ export function HeroSection() {
                   Property type
                 </span>
                 <select
-                  name="category"
+                  name="categoryId"
                   defaultValue=""
                   className="mt-0.5 w-full appearance-none bg-transparent text-sm font-medium outline-none"
                 >
                   <option value="" className="bg-background">
                     Any type
                   </option>
-                  <option value="apartment" className="bg-background">
-                    Apartment
-                  </option>
-                  <option value="house" className="bg-background">
-                    House
-                  </option>
-                  <option value="studio" className="bg-background">
-                    Studio
-                  </option>
+                  {categories.map((category) => (
+                    <option
+                      key={category.id}
+                      value={category.id}
+                      className="bg-background"
+                    >
+                      {category.name}
+                    </option>
+                  ))}
                 </select>
               </span>
               <ChevronDown className="size-4 text-muted-foreground" />
@@ -146,22 +161,27 @@ export function HeroSection() {
             className="absolute top-1 left-4 z-20 bg-background/90 px-3 py-2 shadow-lg sm:left-10"
           >
             <span className="size-2 rounded-full bg-emerald-400" />
-            12 homes match
+            {propertyCount} {propertyCount === 1 ? "home" : "homes"} available
           </Badge>
 
           <Card className="absolute top-14 left-0 h-[370px] w-[82%] overflow-hidden rounded-3xl border-amber-400/25 shadow-2xl sm:h-[405px]">
             <Image
-              src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1400&q=90"
-              alt="Modern apartment living room overlooking Dhaka"
+              src={featuredProperty?.image ?? "/property-placeholder.svg"}
+              alt={featuredProperty?.title ?? "RentNest property"}
               fill
               preload
               sizes="(max-width: 1024px) 82vw, 470px"
               className="object-cover"
+              unoptimized={featuredProperty?.image.startsWith("http")}
             />
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-5 pt-24 text-white">
-              <p className="text-sm text-white/70">Featured in Gulshan</p>
+              <p className="text-sm text-white/70">
+                {featuredProperty
+                  ? `Featured in ${featuredProperty.location}`
+                  : "New listings arriving soon"}
+              </p>
               <p className="mt-1 text-xl font-semibold">
-                City-view furnished loft
+                {featuredProperty?.title ?? "Find your next rental home"}
               </p>
             </div>
           </Card>
@@ -170,7 +190,7 @@ export function HeroSection() {
             <div className="relative z-10 flex h-full flex-col items-center justify-center">
               <MapPin className="size-10 fill-amber-400 text-amber-400" />
               <p className="mt-2 text-xs font-semibold tracking-[0.18em]">
-                GULSHAN
+                {featuredLocation?.toUpperCase() ?? "RENTNEST"}
               </p>
               <p className="mt-auto self-start text-[10px] text-white/60">
                 DHAKA · BD
@@ -181,17 +201,25 @@ export function HeroSection() {
           <Card className="absolute right-0 bottom-3 z-10 w-[52%] rounded-3xl border-amber-400/30 bg-card/95 p-5 shadow-2xl backdrop-blur sm:p-6">
             <p className="text-sm text-muted-foreground">From</p>
             <div className="mt-1 flex items-baseline gap-1">
-              <span className="text-3xl font-semibold tracking-tight">
-                ৳28,000
-              </span>
-              <span className="text-xs text-muted-foreground">/month</span>
+              {featuredProperty ? (
+                <>
+                  <span className="text-3xl font-semibold tracking-tight">
+                    ৳{taka.format(featuredProperty.rent)}
+                  </span>
+                  <span className="text-xs text-muted-foreground">/month</span>
+                </>
+              ) : (
+                <span className="text-xl font-semibold tracking-tight">
+                  Browse available homes
+                </span>
+              )}
             </div>
             <div className="my-4 border-t" />
             <div className="flex items-center justify-between gap-2">
-              <span className="flex items-center gap-1.5 text-sm font-medium">
-                <Star className="size-4 fill-amber-400 text-amber-400" /> 4.9
+              <span className="text-sm font-medium">
+                {featuredProperty?.category.name ?? "Rental marketplace"}
               </span>
-              <Badge variant="outline">
+              <Badge variant="secondary">
                 <CheckCircle2 /> Verified
               </Badge>
             </div>

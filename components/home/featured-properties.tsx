@@ -1,13 +1,15 @@
 import Link from "next/link"
 import { ArrowRight, Building2 } from "lucide-react"
 
-
+import { PropertyCard } from "@/components/home/property-card"
 import { Button } from "@/components/ui/button"
-import { featuredProperties } from "@/data/featured-properties"
-import { PropertyCard } from "./property-card"
+import type { Property } from "@/types/property"
 
+type FeaturedPropertiesProps = {
+  properties: Property[]
+}
 
-export function FeaturedProperties() {
+export function FeaturedProperties({ properties }: FeaturedPropertiesProps) {
   return (
     <section
       className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8"
@@ -35,11 +37,17 @@ export function FeaturedProperties() {
         </Button>
       </div>
 
-      <div className="mt-8 grid gap-5 xl:grid-cols-3">
-        {featuredProperties.map((property) => (
-          <PropertyCard key={property.id} property={property} />
-        ))}
-      </div>
+      {properties.length > 0 ? (
+        <div className="mt-8 grid gap-5 xl:grid-cols-3">
+          {properties.map((property) => (
+            <PropertyCard key={property.id} property={property} />
+          ))}
+        </div>
+      ) : (
+        <div className="mt-8 rounded-2xl border bg-card px-6 py-12 text-center text-sm text-muted-foreground">
+          No available properties have been published yet.
+        </div>
+      )}
     </section>
   )
 }

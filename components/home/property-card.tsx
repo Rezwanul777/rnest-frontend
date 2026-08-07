@@ -24,6 +24,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1280px) 44vw, 220px"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
+            unoptimized={property.image.startsWith("http")}
           />
           <Badge
             variant="secondary"
@@ -37,7 +38,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                {property.category}
+                {property.category.name}
               </p>
               <h3 className="mt-1 text-lg font-semibold tracking-tight">
                 <Link href={`/properties/${property.id}`}>
@@ -62,10 +63,10 @@ export function PropertyCard({ property }: PropertyCardProps) {
 
           <div className="mt-4 flex items-center gap-4 border-y py-3 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <BedDouble className="size-4" /> {property.bedrooms} Beds
+              <BedDouble className="size-4" /> {property.bedrooms ?? "—"} Beds
             </span>
             <span className="flex items-center gap-1.5">
-              <Bath className="size-4" /> {property.bathrooms} Baths
+              <Bath className="size-4" /> {property.bathrooms ?? "—"} Baths
             </span>
           </div>
 
