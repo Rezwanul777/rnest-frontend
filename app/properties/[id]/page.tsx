@@ -16,7 +16,6 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { getPropertyById } from "@/services/property.service"
 
-
 export const dynamic = "force-dynamic"
 
 type PropertyDetailsPageProps = {
