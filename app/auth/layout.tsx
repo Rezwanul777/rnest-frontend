@@ -40,13 +40,13 @@ export default function AuthLayout({
                 </p>
               ))}
             </div>
-            <div className="mt-10 flex items-start gap-3 rounded-2xl border bg-card/70 p-4 backdrop-blur">
+            {/* <div className="mt-10 flex items-start gap-3 rounded-2xl border bg-card/70 p-4 backdrop-blur">
               <ShieldCheck className="mt-0.5 size-5 text-amber-500" />
               <p className="max-w-md text-sm leading-6 text-muted-foreground">
                 Your authentication token is stored in an HttpOnly cookie and is
                 not exposed to browser JavaScript.
               </p>
-            </div>
+            </div> */}
           </section>
 
           <section>{children}</section>

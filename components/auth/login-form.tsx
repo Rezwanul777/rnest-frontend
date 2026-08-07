@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { getDashboardPath } from "@/lib/roles"
 import { loginSchema, type LoginFormValues } from "@/lib/validations/auth"
 import { AuthApiError, login } from "@/services/auth.service"
 
@@ -18,9 +19,7 @@ type LoginFormProps = {
 }
 
 function safeRedirect(value?: string) {
-  return value?.startsWith("/") && !value.startsWith("//")
-    ? value
-    : "/properties"
+  return value?.startsWith("/") && !value.startsWith("//") ? value : undefined
 }
 
 export function LoginForm({
@@ -44,8 +43,8 @@ export function LoginForm({
 
   async function onSubmit(values: LoginFormValues) {
     try {
-      await login(values)
-      router.push(safeRedirect(redirectTo))
+      const { user } = await login(values)
+      router.push(safeRedirect(redirectTo) ?? getDashboardPath(user.role))
       router.refresh()
     } catch (error) {
       if (error instanceof AuthApiError) {
