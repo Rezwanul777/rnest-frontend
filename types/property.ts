@@ -44,3 +44,15 @@ export type PropertyQuery = {
   amenities?: string[]
 }
 
+export type CreatePropertyPayload = {
+  title: string
+  description: string
+  rent: number
+  location: string
+  categoryId: string
+  amenities?: string[]
+  bedrooms?: number
+  bathrooms?: number
+  size?: number
+  images?: string[]
+}

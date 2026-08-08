@@ -1,3 +1,6 @@
+"use client"
+
+import * as React from "react"
 import Link from "next/link"
 import {
   ArrowLeft,
@@ -7,9 +10,11 @@ import {
   Home,
   MapPin,
   ReceiptText,
+  Star,
 } from "lucide-react"
 
 import { RentalRequestStatusBadge } from "@/components/dashboard/rental-request-status-badge"
+import { TenantReviewModal } from "@/components/dashboard/tenant-review-modal"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -62,43 +67,29 @@ function createPageHref(page: number, status?: RentalRequestStatus) {
     : "/dashboard/tenant/requests"
 }
 
-function RequestAction({ request }: { request: RentalRequest }) {
-  if (request.status === "APPROVED") {
-    if (request.rentalAgreement?.id) {
-      return (
-        <Button size="sm" asChild>
-          <Link
-            href={`/dashboard/tenant/requests/${request.id}/pay?agreementId=${request.rentalAgreement.id}`}
-          >
-            Pay now
-          </Link>
-        </Button>
-      )
-    }
-
-    return (
-      <span className="text-xs text-muted-foreground">
-        Payment details pending
-      </span>
-    )
-  }
-
-  if (request.status === "PENDING") {
-    return (
-      <span className="text-xs text-muted-foreground">Awaiting landlord</span>
-    )
-  }
-
-  return <span className="text-xs text-muted-foreground">No action</span>
-}
-
 export function TenantRentalRequestList({
   requests,
   meta,
   activeStatus,
 }: TenantRentalRequestListProps) {
+  const [selectedReviewProperty, setSelectedReviewProperty] = React.useState<{
+    id: string
+    title: string
+  } | null>(null)
+
   return (
     <div className="space-y-7">
+      {selectedReviewProperty && (
+        <TenantReviewModal
+          open={Boolean(selectedReviewProperty)}
+          onOpenChange={(open) => {
+            if (!open) setSelectedReviewProperty(null)
+          }}
+          propertyId={selectedReviewProperty.id}
+          propertyTitle={selectedReviewProperty.title}
+        />
+      )}
+
       <section className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <Badge variant="outline">Tenant workspace</Badge>
@@ -174,43 +165,80 @@ export function TenantRentalRequestList({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {requests.map((request) => (
-                <TableRow key={request.id}>
-                  <TableCell className="min-w-64">
-                    <Link
-                      href={`/properties/${request.property.id}`}
-                      className="font-medium hover:underline"
-                    >
-                      {request.property.title}
-                    </Link>
-                    <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <MapPin className="size-3" /> {request.property.location}
-                    </p>
-                    <p className="mt-1 text-xs font-medium text-amber-600 dark:text-amber-400">
-                      ৳{takaFormatter.format(Number(request.property.rent))}
-                      /month
-                    </p>
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap">
-                    <span className="flex items-center gap-2">
-                      <CalendarDays className="size-4 text-muted-foreground" />
-                      {formatDate(request.requestedMoveInDate)}
-                    </span>
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap">
-                    <span className="flex items-center gap-2">
-                      <Clock3 className="size-4 text-muted-foreground" />
-                      {request.durationInMonths} months
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <RentalRequestStatusBadge status={request.status} />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <RequestAction request={request} />
-                  </TableCell>
-                </TableRow>
-              ))}
+              {requests.map((request) => {
+                const agreementStatus = request.rentalAgreement?.status
+                const isApproved = request.status === "APPROVED"
+                const isActiveOrCompleted =
+                  agreementStatus === "ACTIVE" || agreementStatus === "COMPLETED"
+
+                return (
+                  <TableRow key={request.id}>
+                    <TableCell className="min-w-64">
+                      <Link
+                        href={`/properties/${request.property.id}`}
+                        className="font-medium hover:underline"
+                      >
+                        {request.property.title}
+                      </Link>
+                      <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <MapPin className="size-3" /> {request.property.location}
+                      </p>
+                      <p className="mt-1 text-xs font-medium text-amber-600 dark:text-amber-400">
+                        ৳{takaFormatter.format(Number(request.property.rent))}
+                        /month
+                      </p>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      <span className="flex items-center gap-2">
+                        <CalendarDays className="size-4 text-muted-foreground" />
+                        {formatDate(request.requestedMoveInDate)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">
+                      <span className="flex items-center gap-2">
+                        <Clock3 className="size-4 text-muted-foreground" />
+                        {request.durationInMonths} months
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <RentalRequestStatusBadge status={request.status} />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {isApproved && request.rentalAgreement?.id ? (
+                        <Button size="sm" asChild>
+                          <Link
+                            href={`/dashboard/tenant/requests/${request.id}/pay?agreementId=${request.rentalAgreement.id}`}
+                          >
+                            Pay now
+                          </Link>
+                        </Button>
+                      ) : isActiveOrCompleted ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            setSelectedReviewProperty({
+                              id: request.property.id,
+                              title: request.property.title,
+                            })
+                          }
+                        >
+                          <Star className="mr-1.5 size-3.5 text-amber-400 fill-amber-400" />
+                          Leave Review
+                        </Button>
+                      ) : request.status === "PENDING" ? (
+                        <span className="text-xs text-muted-foreground">
+                          Awaiting landlord
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">
+                          No action
+                        </span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
             </TableBody>
           </Table>
         </Card>

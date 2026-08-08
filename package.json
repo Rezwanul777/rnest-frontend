@@ -3,14 +3,14 @@
   "version": "0.0.1",
   "type": "module",
   "private": true,
+  
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit"
-  },
+  "dev": "next dev --webpack",
+  "build": "next build",
+  "start": "next start",
+  "lint": "eslint",
+  "typecheck": "tsc --noEmit"
+},
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",
     "class-variance-authority": "^0.7.1",
