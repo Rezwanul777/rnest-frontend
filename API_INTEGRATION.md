@@ -18,6 +18,8 @@ https://rnest-backend.vercel.app/api
 | `/auth/login`                      | `POST /auth/login`                                        | Login, role retrieval, and frontend session cookie  |
 | `/dashboard/*`                     | `GET /auth/me`                                            | Verify the HttpOnly-cookie session and current role |
 | `/dashboard/tenant/requests`       | `GET /rental-requests`                                    | Tenant request history, filters, and pagination     |
+| `/dashboard/landlord/requests`     | `GET /rental-requests`                                    | Landlord-scoped incoming request management         |
+| `Landlord request actions`         | `PATCH /rental-requests/:id`                              | Approve or reject a pending rental request          |
 | `LogoutButton`                     | `POST /auth/logout`                                       | End the backend session and clear frontend cookies  |
 
 The property list sends these supported query parameters to the backend:
@@ -52,3 +54,9 @@ backend scopes the response to the authenticated tenant. To enable the approved
 request payment CTA, each approved request also needs its related
 `rentalAgreement.id`, because Stripe checkout accepts an agreement ID rather
 than a rental-request ID.
+
+The landlord request table uses optimistic status updates. Approving a request
+immediately marks that request as approved and other pending requests for the
+same property as rejected, matching the backend transaction. Failed updates are
+rolled back and displayed through a Sonner error toast. Only the backend remains
+authoritative for the final status and rental-agreement creation.

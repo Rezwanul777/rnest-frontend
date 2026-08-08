@@ -29,6 +29,11 @@ export type SubmitRentalRequestPayload = {
   tenantMessage?: string
 }
 
+export type UpdateRentalRequestStatus = Extract<
+  RentalRequestStatus,
+  "APPROVED" | "REJECTED"
+>
+
 export type RentalRequest = {
   id: string
   tenantId: string

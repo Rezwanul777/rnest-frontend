@@ -2,6 +2,7 @@ import type { ApiErrorResponse, ApiResponse } from "@/types/api"
 import type {
   RentalRequest,
   SubmitRentalRequestPayload,
+  UpdateRentalRequestStatus,
 } from "@/types/rental-request"
 
 export type RentalRequestFieldError = {
@@ -59,6 +60,40 @@ export async function submitRentalRequest(payload: SubmitRentalRequestPayload) {
   }
 
   if (!result || !("data" in result)) {
+    throw new RentalRequestApiError(
+      "The server returned an invalid response.",
+      502
+    )
+  }
+
+  return result
+}
+
+export async function updateRentalRequestStatus(
+  requestId: string,
+  status: UpdateRentalRequestStatus
+) {
+  const response = await fetch(`/api/rental-requests/${requestId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ status }),
+    cache: "no-store",
+  })
+
+  const result = (await response.json().catch(() => null)) as
+    { success: boolean; message: string } | ApiErrorResponse | null
+
+  if (!response.ok) {
+    const errorPayload = result as ApiErrorResponse | null
+    throw new RentalRequestApiError(
+      errorPayload?.message ?? "Unable to update the rental request.",
+      response.status
+    )
+  }
+
+  if (!result || !("success" in result)) {
     throw new RentalRequestApiError(
       "The server returned an invalid response.",
       502
