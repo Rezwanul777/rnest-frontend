@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import Image from "next/image"
-import Link from "next/link"
 import { notFound } from "next/navigation"
 import {
   Bath,
@@ -11,15 +10,17 @@ import {
   ShieldCheck,
 } from "lucide-react"
 
+import { RequestToRentAction } from "@/components/properties/request-to-rent-action"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { getPropertyById } from "@/services/property.service"
+import { getCurrentUser } from "@/services/session.service"
 
 export const dynamic = "force-dynamic"
 
 type PropertyDetailsPageProps = {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ request?: string }>
 }
 
 const taka = new Intl.NumberFormat("en-BD")
@@ -40,9 +41,13 @@ export async function generateMetadata({
 
 export default async function PropertyDetailsPage({
   params,
+  searchParams,
 }: PropertyDetailsPageProps) {
-  const { id } = await params
-  const property = await getPropertyById(id)
+  const [{ id }, query] = await Promise.all([params, searchParams])
+  const [property, user] = await Promise.all([
+    getPropertyById(id),
+    getCurrentUser(),
+  ])
 
   if (!property) notFound()
 
@@ -53,9 +58,13 @@ export default async function PropertyDetailsPage({
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-6 flex flex-wrap items-center gap-2">
         <Badge variant="outline">{property.category.name}</Badge>
-        <Badge variant="secondary">
-          <CheckCircle2 /> Available now
-        </Badge>
+        {property.isAvailable ? (
+          <Badge variant="success">
+            <CheckCircle2 /> Available now
+          </Badge>
+        ) : (
+          <Badge variant="secondary">Currently unavailable</Badge>
+        )}
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[2fr_1fr]">
@@ -160,11 +169,14 @@ export default async function PropertyDetailsPage({
                 </p>
               </div>
             </div>
-            <Button className="mt-6 w-full" size="lg" asChild>
-              <Link href={`/auth/login?redirect=/properties/${property.id}`}>
-                Request to rent
-              </Link>
-            </Button>
+            <RequestToRentAction
+              propertyId={property.id}
+              propertyTitle={property.title}
+              isAvailable={property.isAvailable}
+              userRole={user?.role}
+              defaultOpen={query.request === "1"}
+              minimumMoveInDate={new Date().toISOString().slice(0, 10)}
+            />
           </Card>
         </aside>
       </div>
