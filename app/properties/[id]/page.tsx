@@ -59,7 +59,7 @@ export default async function PropertyDetailsPage({
       <div className="mb-6 flex flex-wrap items-center gap-2">
         <Badge variant="outline">{property.category.name}</Badge>
         {property.isAvailable ? (
-          <Badge variant="success">
+          <Badge variant="outline" className="flex items-center gap-1">
             <CheckCircle2 /> Available now
           </Badge>
         ) : (

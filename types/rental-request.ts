@@ -1,7 +1,26 @@
-import type { Property } from "@/types/property"
-
 export type RentalRequestStatus =
-  "PENDING" | "APPROVED" | "REJECTED" | "ACTIVE" | "COMPLETED"
+  "PENDING" | "APPROVED" | "REJECTED" | "CANCELLED"
+
+export type RentalAgreementStatus =
+  "PENDING_PAYMENT" | "ACTIVE" | "COMPLETED" | "TERMINATED" | "CANCELLED"
+
+export type RentalRequestProperty = {
+  id: string
+  title: string
+  location: string
+  rent: number | string
+}
+
+export type RentalRequestTenant = {
+  id: string
+  name: string
+  email: string
+}
+
+export type RentalAgreementSummary = {
+  id: string
+  status: RentalAgreementStatus
+}
 
 export type SubmitRentalRequestPayload = {
   propertyId: string
@@ -18,7 +37,9 @@ export type RentalRequest = {
   requestedMoveInDate: string
   durationInMonths: number
   status: RentalRequestStatus
-  property?: Property
+  property: RentalRequestProperty
+  tenant?: RentalRequestTenant
+  rentalAgreement?: RentalAgreementSummary | null
   createdAt?: string
   updatedAt?: string
 }

@@ -17,6 +17,7 @@ https://rnest-backend.vercel.app/api
 | `/auth/register`                   | `POST /auth/register`                                     | Tenant or landlord account creation                 |
 | `/auth/login`                      | `POST /auth/login`                                        | Login, role retrieval, and frontend session cookie  |
 | `/dashboard/*`                     | `GET /auth/me`                                            | Verify the HttpOnly-cookie session and current role |
+| `/dashboard/tenant/requests`       | `GET /rental-requests`                                    | Tenant request history, filters, and pagination     |
 | `LogoutButton`                     | `POST /auth/logout`                                       | End the backend session and clear frontend cookies  |
 
 The property list sends these supported query parameters to the backend:
@@ -44,3 +45,10 @@ the same-origin `/api/rental-requests` Route Handler, which reads the HttpOnly
 access-token cookie and forwards the request to the protected backend endpoint.
 Backend validation and conflict responses are shown as inline errors and Sonner
 toast notifications.
+
+The tenant request-history page performs a server-side authenticated fetch with
+`page`, `limit`, `status`, `sortBy`, and `sortOrder` query parameters. The
+backend scopes the response to the authenticated tenant. To enable the approved
+request payment CTA, each approved request also needs its related
+`rentalAgreement.id`, because Stripe checkout accepts an agreement ID rather
+than a rental-request ID.
