@@ -50,3 +50,35 @@ export async function getTenantRentalAgreementById(agreementId: string) {
       .find((item) => item.id === agreementId) ?? null
   )
 }
+
+async function getAllTenantAgreementsByStatus(status: RentalAgreementStatus) {
+  const firstPage = await getTenantRentalAgreements({
+    limit: 100,
+    status,
+  })
+  const remainingPages = await Promise.all(
+    Array.from(
+      { length: Math.max(0, firstPage.meta.totalPages - 1) },
+      (_, index) =>
+        getTenantRentalAgreements({
+          page: index + 2,
+          limit: 100,
+          status,
+        })
+    )
+  )
+
+  return [firstPage, ...remainingPages].flatMap((page) => page.agreements)
+}
+
+export async function getTenantReviewAgreements() {
+  const [completed, terminated] = await Promise.all([
+    getAllTenantAgreementsByStatus("COMPLETED"),
+    getAllTenantAgreementsByStatus("TERMINATED"),
+  ])
+
+  return [...completed, ...terminated].sort(
+    (first, second) =>
+      new Date(second.updatedAt).getTime() - new Date(first.updatedAt).getTime()
+  )
+}

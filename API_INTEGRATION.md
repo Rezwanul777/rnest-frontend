@@ -21,7 +21,10 @@ https://rnest-backend.vercel.app/api
 | `/dashboard/tenant`                        | `GET /rental-requests`, `GET /rental-agreements`, `GET /payments` | Real request, active-rental, and payment overview   |
 | `/dashboard/tenant/requests/[id]/pay`      | `POST /payments/rental-agreements/:agreementId/checkout`          | Create a real Stripe Checkout Session               |
 | `/dashboard/tenant/payments`               | `GET /payments`                                                    | Tenant-scoped payment history, filters, pagination  |
+| `/dashboard/tenant/reviews`                | `GET /rental-agreements`, `POST /reviews/:rentalAgreementId`       | Review eligible rentals and submit tenant feedback |
 | `/payment/success`, `/payment/cancel`      | Stripe redirect URLs                                               | Display the checkout outcome and next action        |
+| `/dashboard/admin`                         | `GET /admin/users`, `GET /admin/properties`, `GET /rental-requests`, `GET /payments` | Global platform health overview |
+| `/dashboard/admin/users`                   | `GET /admin/users`, `PATCH /admin/users/:userId`                      | Search, filter, paginate, ban, and unban users      |
 | `/dashboard/landlord/properties`           | `GET /properties/me`                                              | Landlord-owned listings, filters, and pagination    |
 | `/dashboard/landlord`                      | `GET /properties/me`, `GET /rental-requests`, `GET /payments`     | Real portfolio, request, and paid-earnings overview |
 | `/dashboard/landlord/properties/new`       | `GET /categories`, `POST /properties`                             | Load property types and create a landlord listing   |
@@ -86,6 +89,26 @@ The tenant payment-history page sends `page`, `limit`, `status`, `sortBy`, and
 result to the signed-in tenant's rental agreements. The table displays only
 real payment fields returned by the API and includes all backend statuses:
 `PENDING`, `PROCESSING`, `PAID`, `FAILED`, `REFUNDED`, and `CANCELLED`.
+
+The tenant review page reads tenant-scoped `COMPLETED` and `TERMINATED` rental
+agreements, including each agreement's optional `review` relation. A review is
+submitted through a same-origin Route Handler to
+`POST /reviews/:rentalAgreementId`. React Hook Form and Zod validate the 1–5
+rating and optional comment, while backend field errors appear inline and in a
+toast. The backend remains authoritative for agreement ownership, reviewable
+status, and the one-review-per-agreement rule.
+
+The admin overview performs parallel server-side authenticated requests. User
+and property totals come from the admin endpoints, pending and recent activity
+come from the admin-scoped rental-request endpoint, and confirmed platform
+revenue is calculated across all `PAID` payment pages visible to the admin.
+Recent-user and recent-request panels display only real backend records.
+
+Admin user management sends `page`, `limit`, `search`, `role`, `isActive`,
+`sortBy`, and `sortOrder` to `GET /admin/users`. Ban and unban actions use a
+same-origin protected Route Handler and optimistically update the selected row;
+failed mutations roll back and show a toast. The current admin cannot ban their
+own account in the UI, and the backend must enforce the same rule.
 
 The landlord request table uses optimistic status updates. Approving a request
 immediately marks that request as approved and other pending requests for the
