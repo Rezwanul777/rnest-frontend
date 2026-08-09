@@ -1,6 +1,7 @@
 import "server-only"
 
 import { authenticatedApiFetch } from "@/services/authenticated-api-client"
+import { ApiError } from "@/services/api-client"
 import type { PaginationMeta } from "@/types/api"
 import type { Category, Property } from "@/types/property"
 
@@ -79,5 +80,20 @@ export async function getLandlordProperties({
   return {
     listings: response.data.listings.map(normalizeProperty),
     meta: response.data.meta,
+  }
+}
+
+export async function getLandlordPropertyById(
+  propertyId: string
+): Promise<Property | null> {
+  try {
+    const response = await authenticatedApiFetch<ApiLandlordProperty | null>(
+      `/properties/me/${encodeURIComponent(propertyId)}`
+    )
+
+    return response.data ? normalizeProperty(response.data) : null
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return null
+    throw error
   }
 }

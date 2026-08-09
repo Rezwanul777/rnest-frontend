@@ -56,3 +56,5 @@ export type CreatePropertyPayload = {
   size?: number
   images?: string[]
 }
+
+export type UpdatePropertyPayload = CreatePropertyPayload

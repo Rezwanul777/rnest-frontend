@@ -26,12 +26,27 @@ import {
 import {
   createProperty,
   PropertyManagementApiError,
+  updateProperty,
 } from "@/services/property-management.service"
 import type { Category, CreatePropertyPayload } from "@/types/property"
 
 type CreatePropertyFormProps = {
   categories: Category[]
 }
+
+export type PropertyFormInitialValues = CreatePropertyFormValues
+
+type PropertyFormProps =
+  | {
+      mode: "create"
+      categories: Category[]
+    }
+  | {
+      mode: "edit"
+      categories: Category[]
+      propertyId: string
+      initialValues: PropertyFormInitialValues
+    }
 
 function optionalNumber(value: string) {
   return value === "" ? undefined : Number(value)
@@ -55,8 +70,10 @@ const fieldNames = new Set([
   "amenitiesText",
 ])
 
-export function CreatePropertyForm({ categories }: CreatePropertyFormProps) {
+function PropertyForm(props: PropertyFormProps) {
   const router = useRouter()
+  const { categories } = props
+  const isEditing = props.mode === "edit"
   const {
     register,
     control,
@@ -66,14 +83,17 @@ export function CreatePropertyForm({ categories }: CreatePropertyFormProps) {
     formState: { errors, isSubmitting },
   } = useForm<CreatePropertyFormValues>({
     resolver: zodResolver(createPropertySchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      location: "",
-      categoryId: "",
-      amenitiesText: "",
-      images: [{ url: "" }],
-    },
+    defaultValues:
+      props.mode === "edit"
+        ? props.initialValues
+        : {
+            title: "",
+            description: "",
+            location: "",
+            categoryId: "",
+            amenitiesText: "",
+            images: [{ url: "" }],
+          },
   })
   const { fields, append, remove } = useFieldArray({
     control,
@@ -149,16 +169,24 @@ export function CreatePropertyForm({ categories }: CreatePropertyFormProps) {
     }
 
     try {
-      const result = await createProperty(payload)
-      toast.success("Property created", { description: result.message })
+      const result =
+        props.mode === "edit"
+          ? await updateProperty(props.propertyId, payload)
+          : await createProperty(payload)
+      toast.success(isEditing ? "Property updated" : "Property created", {
+        description: result.message,
+      })
       router.push("/dashboard/landlord/properties")
       router.refresh()
     } catch (error) {
       if (error instanceof PropertyManagementApiError) {
         applyBackendErrors(error)
-        toast.error("Could not create property", {
-          description: error.message,
-        })
+        toast.error(
+          isEditing ? "Could not update property" : "Could not create property",
+          {
+            description: error.message,
+          }
+        )
         return
       }
 
@@ -166,9 +194,12 @@ export function CreatePropertyForm({ categories }: CreatePropertyFormProps) {
         type: "server",
         message: "Something went wrong. Please try again.",
       })
-      toast.error("Could not create property", {
-        description: "Something went wrong. Please try again.",
-      })
+      toast.error(
+        isEditing ? "Could not update property" : "Could not create property",
+        {
+          description: "Something went wrong. Please try again.",
+        }
+      )
     }
   }
 
@@ -192,7 +223,9 @@ export function CreatePropertyForm({ categories }: CreatePropertyFormProps) {
             <div>
               <h2 className="font-semibold">Property information</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Add the main details tenants will use to evaluate your listing.
+                {isEditing
+                  ? "Review and update the details tenants see on this listing."
+                  : "Add the main details tenants will use to evaluate your listing."}
               </p>
             </div>
           </div>
@@ -446,15 +479,41 @@ export function CreatePropertyForm({ categories }: CreatePropertyFormProps) {
         >
           {isSubmitting ? (
             <>
-              <LoaderCircle className="animate-spin" /> Creating property...
+              <LoaderCircle className="animate-spin" />
+              {isEditing ? "Updating property..." : "Creating property..."}
             </>
           ) : (
             <>
-              <Save /> Create property
+              <Save /> {isEditing ? "Save changes" : "Create property"}
             </>
           )}
         </Button>
       </div>
     </form>
+  )
+}
+
+export function CreatePropertyForm({ categories }: CreatePropertyFormProps) {
+  return <PropertyForm mode="create" categories={categories} />
+}
+
+type EditPropertyFormProps = {
+  categories: Category[]
+  propertyId: string
+  initialValues: PropertyFormInitialValues
+}
+
+export function EditPropertyForm({
+  categories,
+  propertyId,
+  initialValues,
+}: EditPropertyFormProps) {
+  return (
+    <PropertyForm
+      mode="edit"
+      categories={categories}
+      propertyId={propertyId}
+      initialValues={initialValues}
+    />
   )
 }

@@ -5,6 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
+  AlertTriangle,
   ArrowLeft,
   ArrowRight,
   Bath,
@@ -24,12 +25,20 @@ import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import {
+  deleteProperty,
   PropertyManagementApiError,
   togglePropertyAvailability,
-  deleteLandlordProperty,
 } from "@/services/property-management.service"
 import type { PaginationMeta } from "@/types/api"
 import type { Property } from "@/types/property"
@@ -68,6 +77,10 @@ export function LandlordPropertyList({
   const router = useRouter()
   const [listings, setListings] = React.useState(initialListings)
   const [pendingId, setPendingId] = React.useState<string | null>(null)
+  const [propertyToDelete, setPropertyToDelete] =
+    React.useState<Property | null>(null)
+  const [isDeleting, setIsDeleting] = React.useState(false)
+  const [deleteError, setDeleteError] = React.useState<string | null>(null)
 
   async function changeAvailability(propertyId: string) {
     const snapshot = listings
@@ -100,29 +113,39 @@ export function LandlordPropertyList({
     }
   }
 
-  async function handleDelete(propertyId: string, title: string) {
-    if (!confirm(`Are you sure you want to remove "${title}"?`)) return
+  async function confirmDelete() {
+    if (!propertyToDelete) return
 
-    const snapshot = listings
-    setPendingId(propertyId)
-    setListings((current) => current.filter((item) => item.id !== propertyId))
+    setIsDeleting(true)
+    setDeleteError(null)
 
     try {
-      await deleteLandlordProperty(propertyId)
-      toast.success("Property removed", {
-        description: `"${title}" has been deleted from your listings.`,
-      })
-      router.refresh()
+      const result = await deleteProperty(propertyToDelete.id)
+      const shouldMoveToPreviousPage = listings.length === 1 && meta.page > 1
+
+      setListings((current) =>
+        current.filter((property) => property.id !== propertyToDelete.id)
+      )
+      setPropertyToDelete(null)
+      toast.success("Property deleted", { description: result.message })
+
+      if (shouldMoveToPreviousPage) {
+        router.push(
+          createPageHref(meta.page - 1, activeSearch, activeAvailability)
+        )
+      } else {
+        router.refresh()
+      }
     } catch (error) {
-      setListings(snapshot)
-      toast.error("Failed to delete property", {
-        description:
-          error instanceof PropertyManagementApiError
-            ? error.message
-            : "Something went wrong while removing the listing.",
-      })
+      const message =
+        error instanceof PropertyManagementApiError
+          ? error.message
+          : "Something went wrong. Please try again."
+
+      setDeleteError(message)
+      toast.error("Could not delete property", { description: message })
     } finally {
-      setPendingId(null)
+      setIsDeleting(false)
     }
   }
 
@@ -285,7 +308,7 @@ export function LandlordPropertyList({
                     </span>
                   </p>
 
-                  <div className="mt-5 flex items-center justify-between gap-2 border-t pt-4">
+                  <div className="mt-5 flex items-center justify-between gap-3 border-t pt-4">
                     <label className="flex items-center gap-2 text-sm font-medium">
                       <Switch
                         checked={property.isAvailable}
@@ -296,28 +319,38 @@ export function LandlordPropertyList({
                       Available
                     </label>
 
-                    <div className="flex items-center gap-1.5">
-                      <Button variant="outline" size="icon-sm" asChild title="Edit listing">
-                        <Link href={`/dashboard/landlord/properties/${property.id}/edit`}>
-                          <Pencil className="size-3.5" />
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" asChild>
+                        <Link
+                          href={`/dashboard/landlord/properties/${property.id}/edit`}
+                        >
+                          <Pencil /> Edit
                         </Link>
                       </Button>
                       <Button
-                        variant="ghost"
+                        type="button"
+                        variant="destructive"
                         size="icon-sm"
-                        className="text-destructive hover:bg-destructive/10"
-                        title="Delete listing"
                         disabled={pendingId !== null}
-                        onClick={() => handleDelete(property.id, property.title)}
+                        onClick={() => {
+                          setDeleteError(null)
+                          setPropertyToDelete(property)
+                        }}
+                        aria-label={`Delete ${property.title}`}
                       >
-                        <Trash2 className="size-3.5" />
+                        <Trash2 />
                       </Button>
-                      {property.isAvailable && (
-                        <Button variant="outline" size="sm" asChild>
-                          <Link href={`/properties/${property.id}`}>
-                            View <ExternalLink className="size-3.5 ml-1" />
+                      {property.isAvailable ? (
+                        <Button variant="outline" size="icon-sm" asChild>
+                          <Link
+                            href={`/properties/${property.id}`}
+                            aria-label={`View ${property.title}`}
+                          >
+                            <ExternalLink />
                           </Link>
                         </Button>
+                      ) : (
+                        <span className="sr-only">Hidden publicly</span>
                       )}
                     </div>
                   </div>
@@ -380,6 +413,65 @@ export function LandlordPropertyList({
           </Button>
         </nav>
       )}
+
+      <Dialog
+        open={Boolean(propertyToDelete)}
+        onOpenChange={(open) => {
+          if (!open && !isDeleting) {
+            setPropertyToDelete(null)
+            setDeleteError(null)
+          }
+        }}
+      >
+        <DialogContent showCloseButton={!isDeleting}>
+          <DialogHeader>
+            <span className="mb-2 flex size-11 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
+              <AlertTriangle className="size-5" />
+            </span>
+            <DialogTitle>Delete this property?</DialogTitle>
+            <DialogDescription>
+              You are about to permanently delete
+              {propertyToDelete
+                ? ` “${propertyToDelete.title}”`
+                : " this listing"}
+              . This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          {deleteError && (
+            <div
+              className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+              role="alert"
+            >
+              {deleteError}
+            </div>
+          )}
+
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <DialogClose asChild>
+              <Button type="button" variant="outline" disabled={isDeleting}>
+                Keep property
+              </Button>
+            </DialogClose>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <LoaderCircle className="animate-spin" /> Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 /> Delete permanently
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
