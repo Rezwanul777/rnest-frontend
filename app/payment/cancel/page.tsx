@@ -1,44 +1,51 @@
+import type { Metadata } from "next"
 import Link from "next/link"
-import { XCircle, ArrowLeft, RefreshCw } from "lucide-react"
+import { ArrowLeft, CircleX, ShieldCheck } from "lucide-react"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
+
+export const metadata: Metadata = {
+  title: "Payment cancelled",
+}
 
 export default function PaymentCancelPage() {
   return (
-    <main className="mx-auto max-w-2xl px-4 py-20 sm:px-6">
-      <Card className="overflow-hidden bg-card/90 text-center border-destructive/20 shadow-2xl">
-        <div className="bg-destructive/10 py-10 flex flex-col items-center justify-center border-b border-destructive/10">
-          <div className="flex size-20 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-lg shadow-destructive/30">
-            <XCircle className="size-10" />
-          </div>
-          <h1 className="mt-5 text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
-            Payment Cancelled
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Your transaction was cancelled or could not be completed.
-          </p>
-        </div>
+    <Card className="w-full max-w-2xl bg-card/95 p-7 shadow-xl sm:p-10">
+      <span className="flex size-16 items-center justify-center rounded-2xl border border-amber-400/25 bg-amber-400/10 text-amber-600 dark:text-amber-400">
+        <CircleX className="size-8" />
+      </span>
+      <Badge variant="outline" className="mt-6">
+        Checkout cancelled
+      </Badge>
+      <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+        No payment was completed
+      </h1>
+      <p className="mt-3 max-w-xl leading-7 text-muted-foreground">
+        You left Stripe Checkout before completing payment. Your rental
+        agreement remains pending, and you can return to your requests to try
+        again.
+      </p>
 
-        <CardContent className="p-8 space-y-6">
-          <p className="text-sm leading-6 text-muted-foreground">
-            No funds were deducted. You can retry your payment at any time from your tenant requests dashboard.
-          </p>
+      <div className="mt-7 flex gap-3 rounded-xl border bg-muted/35 p-5">
+        <ShieldCheck className="mt-0.5 size-5 shrink-0 text-muted-foreground" />
+        <p className="text-sm leading-6 text-muted-foreground">
+          RentNest changes an agreement to active only after the backend
+          receives a successful Stripe webhook.
+        </p>
+      </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-            <Button size="lg" asChild>
-              <Link href="/dashboard/tenant/requests">
-                <RefreshCw className="mr-2 size-4" /> Retry from dashboard
-              </Link>
-            </Button>
-            <Button variant="outline" size="lg" asChild>
-              <Link href="/properties">
-                <ArrowLeft className="mr-2 size-4" /> Return to properties
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </main>
+      <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+        <Button size="lg" asChild>
+          <Link href="/dashboard/tenant/requests">
+            <ArrowLeft /> Return to rental requests
+          </Link>
+        </Button>
+        <Button size="lg" variant="outline" asChild>
+          <Link href="/properties">Browse properties</Link>
+        </Button>
+      </div>
+    </Card>
   )
 }

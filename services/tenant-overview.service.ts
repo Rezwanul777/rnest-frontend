@@ -5,18 +5,23 @@ import { getTenantRentalAgreements } from "@/services/tenant-rental-agreement.se
 import { getTenantRentalRequests } from "@/services/tenant-rental-request.service"
 
 export async function getTenantOverview() {
-  const [allRequests, approvedRequests, activeAgreements, recent, paidSummary] =
-    await Promise.all([
-      getTenantRentalRequests({ limit: 1 }),
-      getTenantRentalRequests({ limit: 1, status: "APPROVED" }),
-      getTenantRentalAgreements({ limit: 1, status: "ACTIVE" }),
-      getTenantRentalRequests({ limit: 5 }),
-      getPaidPaymentSummary(),
-    ])
+  const [
+    allRequests,
+    payableAgreements,
+    activeAgreements,
+    recent,
+    paidSummary,
+  ] = await Promise.all([
+    getTenantRentalRequests({ limit: 1 }),
+    getTenantRentalAgreements({ limit: 1, status: "PENDING_PAYMENT" }),
+    getTenantRentalAgreements({ limit: 1, status: "ACTIVE" }),
+    getTenantRentalRequests({ limit: 5 }),
+    getPaidPaymentSummary(),
+  ])
 
   return {
     totalRequests: allRequests.meta.total,
-    approvedRequests: approvedRequests.meta.total,
+    approvedRequests: payableAgreements.meta.total,
     activeRentals: activeAgreements.meta.total,
     totalPaid: paidSummary.totalAmount,
     successfulPayments: paidSummary.totalPayments,

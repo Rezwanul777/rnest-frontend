@@ -30,3 +30,23 @@ export async function getTenantRentalAgreements({
 
   return response.data
 }
+
+export async function getTenantRentalAgreementById(agreementId: string) {
+  const firstPage = await getTenantRentalAgreements({ limit: 100 })
+  const agreement = firstPage.agreements.find((item) => item.id === agreementId)
+
+  if (agreement) return agreement
+
+  const remainingPages = await Promise.all(
+    Array.from(
+      { length: Math.max(0, firstPage.meta.totalPages - 1) },
+      (_, index) => getTenantRentalAgreements({ page: index + 2, limit: 100 })
+    )
+  )
+
+  return (
+    remainingPages
+      .flatMap((page) => page.agreements)
+      .find((item) => item.id === agreementId) ?? null
+  )
+}

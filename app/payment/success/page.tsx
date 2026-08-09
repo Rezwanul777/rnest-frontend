@@ -1,66 +1,72 @@
+import type { Metadata } from "next"
 import Link from "next/link"
-import { CheckCircle2, Home, ArrowRight, ShieldCheck } from "lucide-react"
+import { CheckCircle2, Clock3, ReceiptText } from "lucide-react"
 
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
+
+export const metadata: Metadata = {
+  title: "Payment submitted",
+}
 
 type PaymentSuccessPageProps = {
-  searchParams: Promise<{ agreementId?: string; session_id?: string }>
+  searchParams: Promise<{ session_id?: string }>
 }
 
 export default async function PaymentSuccessPage({
   searchParams,
 }: PaymentSuccessPageProps) {
-  const query = await searchParams
-  const refId = query.agreementId || query.session_id || "RN-" + Math.floor(100000 + Math.random() * 900000)
+  const { session_id: sessionId } = await searchParams
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-20 sm:px-6">
-      <Card className="overflow-hidden bg-card/90 text-center border-emerald-500/20 shadow-2xl">
-        <div className="bg-emerald-500/10 py-10 flex flex-col items-center justify-center border-b border-emerald-500/10">
-          <div className="flex size-20 items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 animate-pulse">
-            <CheckCircle2 className="size-10" />
+    <Card className="w-full max-w-2xl bg-card/95 p-7 shadow-xl sm:p-10">
+      <span className="flex size-16 items-center justify-center rounded-2xl border border-emerald-400/25 bg-emerald-400/10 text-emerald-600 dark:text-emerald-400">
+        <CheckCircle2 className="size-8" />
+      </span>
+      <Badge
+        variant="outline"
+        className="mt-6 border-emerald-400/25 bg-emerald-400/10 text-emerald-700 dark:text-emerald-300"
+      >
+        Stripe checkout returned successfully
+      </Badge>
+      <h1 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">
+        Your payment was submitted
+      </h1>
+      <p className="mt-3 max-w-xl leading-7 text-muted-foreground">
+        Stripe has returned you to RentNest. The secure webhook now confirms the
+        charge and activates your rental agreement in the backend.
+      </p>
+
+      <div className="mt-7 rounded-xl border bg-muted/35 p-5">
+        <div className="flex gap-3">
+          <Clock3 className="mt-0.5 size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+          <div>
+            <p className="font-medium">Confirmation may take a moment</p>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              Refresh your tenant dashboard shortly to see the final payment and
+              agreement status. The URL alone is not treated as proof of
+              payment.
+            </p>
+            {sessionId && (
+              <p className="mt-3 font-mono text-xs text-muted-foreground">
+                Session reference: ••••{sessionId.slice(-8)}
+              </p>
+            )}
           </div>
-          <h1 className="mt-5 text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
-            Payment Successful!
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Your rental agreement is now active. Congratulations on your new home!
-          </p>
         </div>
+      </div>
 
-        <CardContent className="p-8 space-y-6">
-          <div className="rounded-2xl bg-muted/60 p-4 space-y-3 text-sm text-left">
-            <div className="flex justify-between border-b pb-2">
-              <span className="text-muted-foreground">Status:</span>
-              <span className="font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                <ShieldCheck className="size-4" /> Confirmed / Active
-              </span>
-            </div>
-            <div className="flex justify-between border-b pb-2">
-              <span className="text-muted-foreground">Reference / Agreement ID:</span>
-              <span className="font-mono text-xs font-semibold">{refId}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Payment Date:</span>
-              <span>{new Date().toLocaleDateString("en-BD", { day: "numeric", month: "short", year: "numeric" })}</span>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-            <Button size="lg" asChild>
-              <Link href="/dashboard/tenant/requests">
-                Go to my requests <ArrowRight className="ml-2 size-4" />
-              </Link>
-            </Button>
-            <Button variant="outline" size="lg" asChild>
-              <Link href="/properties">
-                <Home className="mr-2 size-4" /> Browse more properties
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </main>
+      <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+        <Button size="lg" asChild>
+          <Link href="/dashboard/tenant">
+            <ReceiptText /> View tenant dashboard
+          </Link>
+        </Button>
+        <Button size="lg" variant="outline" asChild>
+          <Link href="/dashboard/tenant/requests">View rental requests</Link>
+        </Button>
+      </div>
+    </Card>
   )
 }

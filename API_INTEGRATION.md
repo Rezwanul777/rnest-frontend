@@ -19,6 +19,8 @@ https://rnest-backend.vercel.app/api
 | `/dashboard/*`                             | `GET /auth/me`                                                    | Verify the HttpOnly-cookie session and current role |
 | `/dashboard/tenant/requests`               | `GET /rental-requests`                                            | Tenant request history, filters, and pagination     |
 | `/dashboard/tenant`                        | `GET /rental-requests`, `GET /rental-agreements`, `GET /payments` | Real request, active-rental, and payment overview   |
+| `/dashboard/tenant/requests/[id]/pay`      | `POST /payments/rental-agreements/:agreementId/checkout`          | Create a real Stripe Checkout Session               |
+| `/payment/success`, `/payment/cancel`      | Stripe redirect URLs                                               | Display the checkout outcome and next action        |
 | `/dashboard/landlord/properties`           | `GET /properties/me`                                              | Landlord-owned listings, filters, and pagination    |
 | `/dashboard/landlord`                      | `GET /properties/me`, `GET /rental-requests`, `GET /payments`     | Real portfolio, request, and paid-earnings overview |
 | `/dashboard/landlord/properties/new`       | `GET /categories`, `POST /properties`                             | Load property types and create a landlord listing   |
@@ -65,9 +67,18 @@ request payment CTA, each approved request also needs its related
 than a rental-request ID.
 
 The tenant overview aggregates only tenant-scoped backend data. Request totals
-and recent activity come from rental requests, active rentals come from
-agreements filtered by `ACTIVE`, and total paid is calculated across every page
-of the tenant's `PAID` payment records.
+and recent activity come from rental requests, payable and active rentals come
+from agreements filtered by `PENDING_PAYMENT` and `ACTIVE`, and total paid is
+calculated across every page of the tenant's `PAID` payment records.
+
+The tenant payment page resolves the approved request's tenant-scoped rental
+agreement and creates checkout through a same-origin Route Handler. That handler
+reads the HttpOnly access-token cookie and forwards only the agreement ID to the
+backend. The browser receives Stripe's HTTPS `checkoutUrl` and redirects there;
+no Stripe secret or payment amount exists in frontend code. The success page
+does not mark a payment as paid from URL parameters—the backend Stripe webhook
+remains authoritative for payment and agreement status. The cancel page keeps
+the agreement pending so the tenant can retry.
 
 The landlord request table uses optimistic status updates. Approving a request
 immediately marks that request as approved and other pending requests for the
