@@ -6,39 +6,40 @@ Base URL is configured with `NEXT_PUBLIC_API_URL` and defaults to:
 https://rnest-backend.vercel.app/api
 ```
 
-| Frontend route/component                   | Backend endpoint                                                  | Purpose                                             |
-| ------------------------------------------ | ----------------------------------------------------------------- | --------------------------------------------------- |
-| `/` · `FeaturedProperties`                 | `GET /properties?limit=3&sortBy=createdAt&sortOrder=desc`         | Latest three available properties                   |
-| `/` · `HeroSection`                        | `GET /categories`                                                 | Real property-type options                          |
-| `/properties`                              | `GET /properties`                                                 | Backend search, filtering, sorting, and pagination  |
-| `/properties`                              | `GET /categories`                                                 | Category filter options                             |
-| `/properties/[id]`                         | `GET /properties/:id`                                             | Property details                                    |
-| `/properties/[id]` · request modal         | `POST /rental-requests`                                           | Tenant submits a protected rental request           |
-| `/auth/register`                           | `POST /auth/register`                                             | Tenant or landlord account creation                 |
-| `/auth/login`                              | `POST /auth/login`                                                | Login, role retrieval, and frontend session cookie  |
-| `/dashboard/*`                             | `GET /auth/me`                                                    | Verify the HttpOnly-cookie session and current role |
-| `/dashboard/tenant/requests`               | `GET /rental-requests`                                            | Tenant request history, filters, and pagination     |
-| `/dashboard/tenant`                        | `GET /rental-requests`, `GET /rental-agreements`, `GET /payments` | Real request, active-rental, and payment overview   |
-| `/dashboard/tenant/requests/[id]/pay`      | `POST /payments/rental-agreements/:agreementId/checkout`          | Create a real Stripe Checkout Session               |
-| `/dashboard/tenant/payments`               | `GET /payments`                                                    | Tenant-scoped payment history, filters, pagination  |
-| `/dashboard/tenant/reviews`                | `GET /rental-agreements`, `POST /reviews/:rentalAgreementId`       | Review eligible rentals and submit tenant feedback |
-| `/payment/success`, `/payment/cancel`      | Stripe redirect URLs                                               | Display the checkout outcome and next action        |
-| `/dashboard/admin`                         | `GET /admin/users`, `GET /admin/properties`, `GET /rental-requests`, `GET /payments` | Global platform health overview |
-| `/dashboard/admin/users`                   | `GET /admin/users`, `PATCH /admin/users/:userId`                      | Search, filter, paginate, ban, and unban users      |
-| `/dashboard/admin/properties`              | `GET /admin/properties`, `PATCH /admin/properties/:propertyId/availability` | Inspect, search, filter, hide, and publish listings |
-| `/dashboard/admin/requests`                | `GET /rental-requests`                                                | Inspect, search, filter, and paginate all requests  |
-| `/dashboard/admin/payments`                | `GET /payments`                                                       | Inspect, search, filter, and paginate all payments  |
-| `/dashboard/landlord/properties`           | `GET /properties/me`                                              | Landlord-owned listings, filters, and pagination    |
-| `/dashboard/landlord`                      | `GET /properties/me`, `GET /rental-requests`, `GET /payments`     | Real portfolio, request, and paid-earnings overview |
-| `/dashboard/landlord/properties/new`       | `GET /categories`, `POST /properties`                             | Load property types and create a landlord listing   |
-| `/dashboard/landlord/properties/[id]/edit` | `GET /properties/me/:id`, `GET /categories`                       | Load an owned property into the edit form           |
-| `Landlord edit-property form`              | `PATCH /properties/:id`                                           | Update an owned property listing                    |
-| `Landlord delete confirmation`             | `DELETE /properties/:id`                                          | Permanently remove an owned property listing        |
-| `Landlord availability switch`             | `PATCH /properties/:id/availability`                              | Toggle whether a property is publicly available     |
-| `/dashboard/landlord/requests`             | `GET /rental-requests`                                            | Landlord-scoped incoming request management         |
-| `/dashboard/landlord/tenants`              | `GET /rental-agreements`                                          | Landlord-scoped tenant and lease history            |
-| `Landlord request actions`                 | `PATCH /rental-requests/:id`                                      | Approve or reject a pending rental request          |
-| `LogoutButton`                             | `POST /auth/logout`                                               | End the backend session and clear frontend cookies  |
+| Frontend route/component                   | Backend endpoint                                                                     | Purpose                                             |
+| ------------------------------------------ | ------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| `/` · `FeaturedProperties`                 | `GET /properties?limit=3&sortBy=createdAt&sortOrder=desc`                            | Latest three available properties                   |
+| `/` · `HeroSection`                        | `GET /categories`                                                                    | Real property-type options                          |
+| `/properties`                              | `GET /properties`                                                                    | Backend search, filtering, sorting, and pagination  |
+| `/properties`                              | `GET /categories`                                                                    | Category filter options                             |
+| `/properties/[id]`                         | `GET /properties/:id`                                                                | Property details                                    |
+| `/properties/[id]` · request modal         | `POST /rental-requests`                                                              | Tenant submits a protected rental request           |
+| `/auth/register`                           | `POST /auth/register`                                                                | Tenant or landlord account creation                 |
+| `/auth/login`                              | `POST /auth/login`                                                                   | Login, role retrieval, and frontend session cookie  |
+| `/dashboard/*`                             | `GET /auth/me`                                                                       | Verify the HttpOnly-cookie session and current role |
+| `/dashboard/tenant/requests`               | `GET /rental-requests`                                                               | Tenant request history, filters, and pagination     |
+| `Tenant Complete rental action`            | `PATCH /rental-agreements/:agreementId/update`                                       | Change an owned active agreement to completed       |
+| `/dashboard/tenant`                        | `GET /rental-requests`, `GET /rental-agreements`, `GET /payments`                    | Real request, active-rental, and payment overview   |
+| `/dashboard/tenant/requests/[id]/pay`      | `POST /payments/rental-agreements/:agreementId/checkout`                             | Create a real Stripe Checkout Session               |
+| `/dashboard/tenant/payments`               | `GET /payments`                                                                      | Tenant-scoped payment history, filters, pagination  |
+| `/dashboard/tenant/reviews`                | `GET /rental-agreements`, `POST /reviews/:rentalAgreementId`                         | Review eligible rentals and submit tenant feedback  |
+| `/payment/success`, `/payment/cancel`      | Stripe redirect URLs                                                                 | Display the checkout outcome and next action        |
+| `/dashboard/admin`                         | `GET /admin/users`, `GET /admin/properties`, `GET /rental-requests`, `GET /payments` | Global platform health overview                     |
+| `/dashboard/admin/users`                   | `GET /admin/users`, `PATCH /admin/users/:userId`                                     | Search, filter, paginate, ban, and unban users      |
+| `/dashboard/admin/properties`              | `GET /admin/properties`, `PATCH /admin/properties/:propertyId/availability`          | Inspect, search, filter, hide, and publish listings |
+| `/dashboard/admin/requests`                | `GET /rental-requests`                                                               | Inspect, search, filter, and paginate all requests  |
+| `/dashboard/admin/payments`                | `GET /payments`                                                                      | Inspect, search, filter, and paginate all payments  |
+| `/dashboard/landlord/properties`           | `GET /properties/me`                                                                 | Landlord-owned listings, filters, and pagination    |
+| `/dashboard/landlord`                      | `GET /properties/me`, `GET /rental-requests`, `GET /payments`                        | Real portfolio, request, and paid-earnings overview |
+| `/dashboard/landlord/properties/new`       | `GET /categories`, `POST /properties`                                                | Load property types and create a landlord listing   |
+| `/dashboard/landlord/properties/[id]/edit` | `GET /properties/me/:id`, `GET /categories`                                          | Load an owned property into the edit form           |
+| `Landlord edit-property form`              | `PATCH /properties/:id`                                                              | Update an owned property listing                    |
+| `Landlord delete confirmation`             | `DELETE /properties/:id`                                                             | Permanently remove an owned property listing        |
+| `Landlord availability switch`             | `PATCH /properties/:id/availability`                                                 | Toggle whether a property is publicly available     |
+| `/dashboard/landlord/requests`             | `GET /rental-requests`                                                               | Landlord-scoped incoming request management         |
+| `/dashboard/landlord/tenants`              | `GET /rental-agreements`                                                             | Landlord-scoped tenant and lease history            |
+| `Landlord request actions`                 | `PATCH /rental-requests/:id`                                                         | Approve or reject a pending rental request          |
+| `LogoutButton`                             | `POST /auth/logout`                                                                  | End the backend session and clear frontend cookies  |
 
 The property list sends these supported query parameters to the backend:
 
@@ -84,9 +85,11 @@ The tenant request table presents a combined rental lifecycle. Request-level
 PENDING, APPROVED, and REJECTED states use orange, blue, and red badges;
 agreement-level ACTIVE and COMPLETED states replace the approved badge with
 green and gray badges. APPROVED plus PENDING_PAYMENT shows Pay now, ACTIVE shows
-Rental active, and COMPLETED or TERMINATED links to the review workspace. The
-backend accepts reviews only for completed or terminated agreements, so the UI
-does not expose an invalid review action while a rental is active.
+a confirmed Complete rental action, and COMPLETED or TERMINATED links to the
+review workspace. Completion is sent through a same-origin protected Route
+Handler to `PATCH /rental-agreements/:agreementId/update`. The backend accepts
+reviews only for completed or terminated agreements, so the UI does not expose
+an invalid review action while a rental is active.
 
 The tenant overview aggregates only tenant-scoped backend data. Request totals
 and recent activity come from rental requests, payable and active rentals come

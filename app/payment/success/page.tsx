@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { CheckCircle2, Clock3, ReceiptText } from "lucide-react"
+import { CheckCircle2, Clock3, ListChecks, ReceiptText } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -53,6 +53,20 @@ export default async function PaymentSuccessPage({
                 Session reference: ••••{sessionId.slice(-8)}
               </p>
             )}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-xl border border-emerald-400/25 bg-emerald-400/10 p-5">
+        <div className="flex gap-3">
+          <ListChecks className="mt-0.5 size-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <div>
+            <p className="font-medium">What happens next?</p>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              After webhook confirmation, the rental becomes Active. When the
+              tenancy has ended, open Rental requests and choose Complete
+              rental. The Leave review action will then become available.
+            </p>
           </div>
         </div>
       </div>
