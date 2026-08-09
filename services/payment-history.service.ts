@@ -6,6 +6,7 @@ import type { PaymentListData, PaymentStatus } from "@/types/payment"
 export type PaymentHistoryQuery = {
   page?: number
   limit?: number
+  search?: string
   status?: PaymentStatus
   sortBy?: "createdAt" | "paidAt"
   sortOrder?: "asc" | "desc"
@@ -14,6 +15,7 @@ export type PaymentHistoryQuery = {
 export async function getPaymentHistory({
   page = 1,
   limit = 8,
+  search,
   status,
   sortBy = "createdAt",
   sortOrder = "desc",
@@ -25,6 +27,7 @@ export async function getPaymentHistory({
     sortOrder,
   })
 
+  if (search) params.set("search", search)
   if (status) params.set("status", status)
 
   const response = await authenticatedApiFetch<PaymentListData>(

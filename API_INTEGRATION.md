@@ -25,6 +25,8 @@ https://rnest-backend.vercel.app/api
 | `/payment/success`, `/payment/cancel`      | Stripe redirect URLs                                               | Display the checkout outcome and next action        |
 | `/dashboard/admin`                         | `GET /admin/users`, `GET /admin/properties`, `GET /rental-requests`, `GET /payments` | Global platform health overview |
 | `/dashboard/admin/users`                   | `GET /admin/users`, `PATCH /admin/users/:userId`                      | Search, filter, paginate, ban, and unban users      |
+| `/dashboard/admin/properties`              | `GET /admin/properties`, `PATCH /admin/properties/:propertyId/availability` | Inspect, search, filter, hide, and publish listings |
+| `/dashboard/admin/requests`                | `GET /rental-requests`                                                | Inspect, search, filter, and paginate all requests  |
 | `/dashboard/landlord/properties`           | `GET /properties/me`                                              | Landlord-owned listings, filters, and pagination    |
 | `/dashboard/landlord`                      | `GET /properties/me`, `GET /rental-requests`, `GET /payments`     | Real portfolio, request, and paid-earnings overview |
 | `/dashboard/landlord/properties/new`       | `GET /categories`, `POST /properties`                             | Load property types and create a landlord listing   |
@@ -109,6 +111,21 @@ Admin user management sends `page`, `limit`, `search`, `role`, `isActive`,
 same-origin protected Route Handler and optimistically update the selected row;
 failed mutations roll back and show a toast. The current admin cannot ban their
 own account in the UI, and the backend must enforce the same rule.
+
+Admin property moderation sends `page`, `limit`, `search`, `isAvailable`,
+`sortBy`, and `sortOrder` to `GET /admin/properties`. The endpoint uses the
+backend ADMIN scope, so hidden listings remain visible to moderators. Hide and
+Publish actions send an explicit boolean through a same-origin protected Route
+Handler to `PATCH /admin/properties/:propertyId/availability`. The card updates
+optimistically, rolls back on failure, and reports every result with a Sonner
+toast. Public property links are shown only for published listings.
+
+Admin rental-request oversight sends `page`, `limit`, `search`, `status`,
+`sortBy`, and `sortOrder` to the authenticated `GET /rental-requests` endpoint.
+The backend ADMIN scope returns platform-wide records with selected tenant,
+property, and optional agreement data. The details dialog is read-only:
+Approve/Reject remains a landlord action, preserving the assignment's role
+boundaries and backend authorization rules.
 
 The landlord request table uses optimistic status updates. Approving a request
 immediately marks that request as approved and other pending requests for the

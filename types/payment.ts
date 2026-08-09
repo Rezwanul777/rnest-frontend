@@ -1,4 +1,5 @@
 import type { PaginationMeta } from "@/types/api"
+import type { RentalAgreementStatus } from "@/types/rental-request"
 
 export type PaymentStatus =
   "PENDING" | "PROCESSING" | "PAID" | "FAILED" | "REFUNDED" | "CANCELLED"
@@ -10,7 +11,24 @@ export type Payment = {
   currency: string
   status: PaymentStatus
   provider: "STRIPE"
+  stripeSessionId?: string | null
+  stripePaymentIntentId?: string | null
   failureReason?: string | null
+  rentalAgreement?: {
+    id: string
+    status: RentalAgreementStatus
+    tenant: {
+      id: string
+      name: string
+      email: string
+    }
+    property: {
+      id: string
+      title: string
+      location: string
+      rent: number | string
+    }
+  }
   paidAt: string | null
   createdAt: string
   updatedAt: string
