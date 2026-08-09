@@ -7,18 +7,22 @@ export type PaymentHistoryQuery = {
   page?: number
   limit?: number
   status?: PaymentStatus
+  sortBy?: "createdAt" | "paidAt"
+  sortOrder?: "asc" | "desc"
 }
 
 export async function getPaymentHistory({
   page = 1,
-  limit = 100,
+  limit = 8,
   status,
+  sortBy = "createdAt",
+  sortOrder = "desc",
 }: PaymentHistoryQuery = {}) {
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
-    sortBy: "paidAt",
-    sortOrder: "desc",
+    sortBy,
+    sortOrder,
   })
 
   if (status) params.set("status", status)
@@ -36,11 +40,21 @@ function paymentAmount(value: number | string) {
 }
 
 export async function getPaidPaymentSummary() {
-  const firstPage = await getPaymentHistory({ status: "PAID" })
+  const firstPage = await getPaymentHistory({
+    limit: 100,
+    status: "PAID",
+    sortBy: "paidAt",
+  })
   const remainingPages = await Promise.all(
     Array.from(
       { length: Math.max(0, firstPage.meta.totalPages - 1) },
-      (_, index) => getPaymentHistory({ page: index + 2, status: "PAID" })
+      (_, index) =>
+        getPaymentHistory({
+          page: index + 2,
+          limit: 100,
+          status: "PAID",
+          sortBy: "paidAt",
+        })
     )
   )
 

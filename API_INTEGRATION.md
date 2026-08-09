@@ -20,6 +20,7 @@ https://rnest-backend.vercel.app/api
 | `/dashboard/tenant/requests`               | `GET /rental-requests`                                            | Tenant request history, filters, and pagination     |
 | `/dashboard/tenant`                        | `GET /rental-requests`, `GET /rental-agreements`, `GET /payments` | Real request, active-rental, and payment overview   |
 | `/dashboard/tenant/requests/[id]/pay`      | `POST /payments/rental-agreements/:agreementId/checkout`          | Create a real Stripe Checkout Session               |
+| `/dashboard/tenant/payments`               | `GET /payments`                                                    | Tenant-scoped payment history, filters, pagination  |
 | `/payment/success`, `/payment/cancel`      | Stripe redirect URLs                                               | Display the checkout outcome and next action        |
 | `/dashboard/landlord/properties`           | `GET /properties/me`                                              | Landlord-owned listings, filters, and pagination    |
 | `/dashboard/landlord`                      | `GET /properties/me`, `GET /rental-requests`, `GET /payments`     | Real portfolio, request, and paid-earnings overview |
@@ -79,6 +80,12 @@ no Stripe secret or payment amount exists in frontend code. The success page
 does not mark a payment as paid from URL parameters—the backend Stripe webhook
 remains authoritative for payment and agreement status. The cancel page keeps
 the agreement pending so the tenant can retry.
+
+The tenant payment-history page sends `page`, `limit`, `status`, `sortBy`, and
+`sortOrder` to `GET /payments`. The authenticated backend scope restricts the
+result to the signed-in tenant's rental agreements. The table displays only
+real payment fields returned by the API and includes all backend statuses:
+`PENDING`, `PROCESSING`, `PAID`, `FAILED`, `REFUNDED`, and `CANCELLED`.
 
 The landlord request table uses optimistic status updates. Approving a request
 immediately marks that request as approved and other pending requests for the

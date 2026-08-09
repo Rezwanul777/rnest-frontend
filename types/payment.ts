@@ -1,7 +1,7 @@
 import type { PaginationMeta } from "@/types/api"
 
 export type PaymentStatus =
-  "PENDING" | "PROCESSING" | "PAID" | "FAILED" | "REFUNDED"
+  "PENDING" | "PROCESSING" | "PAID" | "FAILED" | "REFUNDED" | "CANCELLED"
 
 export type Payment = {
   id: string
@@ -9,10 +9,11 @@ export type Payment = {
   amount: number | string
   currency: string
   status: PaymentStatus
-  provider?: string
-  paidAt?: string | null
-  createdAt?: string
-  updatedAt?: string
+  provider: "STRIPE"
+  failureReason?: string | null
+  paidAt: string | null
+  createdAt: string
+  updatedAt: string
 }
 
 export type PaymentListData = {
