@@ -169,7 +169,7 @@ export function HeroSection({
               src={featuredProperty?.image ?? "/property-placeholder.svg"}
               alt={featuredProperty?.title ?? "RentNest property"}
               fill
-              preload
+              loading="eager"
               sizes="(max-width: 1024px) 82vw, 470px"
               className="object-cover"
               unoptimized={featuredProperty?.image.startsWith("http")}
