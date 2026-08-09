@@ -17,6 +17,8 @@ export const metadata: Metadata = {
     "Browse and filter verified rental properties by location, type, monthly rent, and amenities.",
 }
 
+const PROPERTY_PAGE_SIZE = "6"
+
 type PropertiesPageProps = {
   searchParams: Promise<{
     location?: string | string[]
@@ -77,7 +79,7 @@ export default async function PropertiesPage({
 
   const propertyQuery: PropertyQuery = {
     page,
-    limit: "6",
+    limit: PROPERTY_PAGE_SIZE,
     search: initialFilters.search,
     categoryId: initialFilters.categoryId,
     minRent: initialFilters.minRent,

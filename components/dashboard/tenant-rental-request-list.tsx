@@ -7,8 +7,10 @@ import {
   Home,
   MapPin,
   ReceiptText,
+  Star,
 } from "lucide-react"
 
+import { RentalAgreementStatusBadge } from "@/components/dashboard/rental-agreement-status-badge"
 import { RentalRequestStatusBadge } from "@/components/dashboard/rental-request-status-badge"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -62,6 +64,18 @@ function createPageHref(page: number, status?: RentalRequestStatus) {
     : "/dashboard/tenant/requests"
 }
 
+function RequestLifecycleBadge({ request }: { request: RentalRequest }) {
+  if (request.status !== "APPROVED" || !request.rentalAgreement) {
+    return <RentalRequestStatusBadge status={request.status} />
+  }
+
+  if (request.rentalAgreement.status === "PENDING_PAYMENT") {
+    return <RentalRequestStatusBadge status="APPROVED" />
+  }
+
+  return <RentalAgreementStatusBadge status={request.rentalAgreement.status} />
+}
+
 function RequestAction({ request }: { request: RentalRequest }) {
   if (request.status === "APPROVED") {
     if (request.rentalAgreement?.status === "PENDING_PAYMENT") {
@@ -79,21 +93,25 @@ function RequestAction({ request }: { request: RentalRequest }) {
     if (request.rentalAgreement?.status === "ACTIVE") {
       return (
         <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-          Payment complete
+          Rental active
         </span>
       )
     }
 
-    if (request.rentalAgreement?.status === "COMPLETED") {
+    if (
+      request.rentalAgreement?.status === "COMPLETED" ||
+      request.rentalAgreement?.status === "TERMINATED"
+    ) {
       return (
-        <span className="text-xs text-muted-foreground">Rental completed</span>
+        <Button size="sm" variant="outline" asChild>
+          <Link href="/dashboard/tenant/reviews">
+            <Star /> Leave review
+          </Link>
+        </Button>
       )
     }
 
-    if (
-      request.rentalAgreement?.status === "TERMINATED" ||
-      request.rentalAgreement?.status === "CANCELLED"
-    ) {
+    if (request.rentalAgreement?.status === "CANCELLED") {
       return (
         <span className="text-xs text-muted-foreground">Agreement closed</span>
       )
@@ -227,7 +245,7 @@ export function TenantRentalRequestList({
                     </span>
                   </TableCell>
                   <TableCell>
-                    <RentalRequestStatusBadge status={request.status} />
+                    <RequestLifecycleBadge request={request} />
                   </TableCell>
                   <TableCell className="text-right">
                     <RequestAction request={request} />

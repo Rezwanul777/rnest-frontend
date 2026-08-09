@@ -43,9 +43,15 @@ type DashboardSidebarProps = {
   onClose: () => void
 }
 
-function isActiveRoute(pathname: string, href: string, overviewHref: string) {
-  if (href === overviewHref) return pathname === href
-  return pathname === href || pathname.startsWith(`${href}/`)
+function getActiveRouteHref(pathname: string, items: DashboardNavItem[]) {
+  const overviewHref = items[0]?.href
+
+  return items
+    .filter((item) => {
+      if (item.href === overviewHref) return pathname === item.href
+      return pathname === item.href || pathname.startsWith(`${item.href}/`)
+    })
+    .sort((first, second) => second.href.length - first.href.length)[0]?.href
 }
 
 export function DashboardSidebar({
@@ -55,7 +61,7 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const pathname = usePathname()
   const items = dashboardNavigationByRole[user.role]
-  const overviewHref = items[0].href
+  const activeHref = getActiveRouteHref(pathname, items)
 
   return (
     <>
@@ -114,7 +120,7 @@ export function DashboardSidebar({
           <div className="space-y-1">
             {items.map((item) => {
               const Icon = navIcons[item.icon]
-              const active = isActiveRoute(pathname, item.href, overviewHref)
+              const active = item.href === activeHref
 
               return (
                 <Link

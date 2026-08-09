@@ -8,7 +8,7 @@ https://rnest-backend.vercel.app/api
 
 | Frontend route/component                   | Backend endpoint                                                  | Purpose                                             |
 | ------------------------------------------ | ----------------------------------------------------------------- | --------------------------------------------------- |
-| `/` · `FeaturedProperties`                 | `GET /properties?limit=6&sortBy=createdAt&sortOrder=desc`         | Latest available properties                         |
+| `/` · `FeaturedProperties`                 | `GET /properties?limit=3&sortBy=createdAt&sortOrder=desc`         | Latest three available properties                   |
 | `/` · `HeroSection`                        | `GET /categories`                                                 | Real property-type options                          |
 | `/properties`                              | `GET /properties`                                                 | Backend search, filtering, sorting, and pagination  |
 | `/properties`                              | `GET /categories`                                                 | Category filter options                             |
@@ -27,6 +27,7 @@ https://rnest-backend.vercel.app/api
 | `/dashboard/admin/users`                   | `GET /admin/users`, `PATCH /admin/users/:userId`                      | Search, filter, paginate, ban, and unban users      |
 | `/dashboard/admin/properties`              | `GET /admin/properties`, `PATCH /admin/properties/:propertyId/availability` | Inspect, search, filter, hide, and publish listings |
 | `/dashboard/admin/requests`                | `GET /rental-requests`                                                | Inspect, search, filter, and paginate all requests  |
+| `/dashboard/admin/payments`                | `GET /payments`                                                       | Inspect, search, filter, and paginate all payments  |
 | `/dashboard/landlord/properties`           | `GET /properties/me`                                              | Landlord-owned listings, filters, and pagination    |
 | `/dashboard/landlord`                      | `GET /properties/me`, `GET /rental-requests`, `GET /payments`     | Real portfolio, request, and paid-earnings overview |
 | `/dashboard/landlord/properties/new`       | `GET /categories`, `POST /properties`                             | Load property types and create a landlord listing   |
@@ -45,6 +46,13 @@ The property list sends these supported query parameters to the backend:
 page, limit, search, categoryId, minRent, maxRent,
 amenities, sortBy, sortOrder
 ```
+
+The homepage requests at most three real available properties. The Explore All
+catalog requests six records per page. Because the backend PUBLIC scope enforces
+`isAvailable: true`, these are maximum page sizes rather than guaranteed fake
+counts: approving a rental makes that property unavailable and naturally
+reduces the public total. When only one or two real listings remain, the
+homepage grid expands those cards to avoid an awkward empty third column.
 
 All requests pass through `services/api-client.ts`. Failed API responses become
 structured `ApiError` instances and are displayed by Next.js route error
@@ -71,6 +79,14 @@ backend scopes the response to the authenticated tenant. To enable the approved
 request payment CTA, each approved request also needs its related
 `rentalAgreement.id`, because Stripe checkout accepts an agreement ID rather
 than a rental-request ID.
+
+The tenant request table presents a combined rental lifecycle. Request-level
+PENDING, APPROVED, and REJECTED states use orange, blue, and red badges;
+agreement-level ACTIVE and COMPLETED states replace the approved badge with
+green and gray badges. APPROVED plus PENDING_PAYMENT shows Pay now, ACTIVE shows
+Rental active, and COMPLETED or TERMINATED links to the review workspace. The
+backend accepts reviews only for completed or terminated agreements, so the UI
+does not expose an invalid review action while a rental is active.
 
 The tenant overview aggregates only tenant-scoped backend data. Request totals
 and recent activity come from rental requests, payable and active rentals come
@@ -126,6 +142,13 @@ The backend ADMIN scope returns platform-wide records with selected tenant,
 property, and optional agreement data. The details dialog is read-only:
 Approve/Reject remains a landlord action, preserving the assignment's role
 boundaries and backend authorization rules.
+
+Admin payment oversight sends `page`, `limit`, `search`, `status`, `sortBy`,
+and `sortOrder` to the ADMIN-scoped `GET /payments` endpoint. The backend adds
+only selected agreement, tenant, and property fields while continuing to omit
+the Stripe checkout URL. The table and details dialog are read-only because
+Stripe webhook verification—not a frontend action or success URL—owns payment
+and rental-agreement status transitions.
 
 The landlord request table uses optimistic status updates. Approving a request
 immediately marks that request as approved and other pending requests for the

@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { Bath, BedDouble, Heart, MapPin } from "lucide-react"
+import { ArrowUpRight, Bath, BedDouble, Heart, MapPin } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -15,7 +15,7 @@ const taka = new Intl.NumberFormat("en-BD")
 
 export function PropertyCard({ property }: PropertyCardProps) {
   return (
-    <Card className="group overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:border-amber-400/35 hover:shadow-xl">
+    <Card className="group overflow-hidden rounded-2xl transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-amber-400/45 hover:shadow-[0_22px_55px_-28px_rgba(245,158,11,0.55)]">
       <div className="grid min-h-64 sm:grid-cols-[44%_1fr]">
         <div className="relative min-h-56 overflow-hidden sm:min-h-full">
           <Image
@@ -27,7 +27,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
             unoptimized={property.image.startsWith("http")}
           />
           <Badge
-            variant="secondary"
+            variant="success"
             className="absolute top-3 left-3 bg-background/85 backdrop-blur"
           >
             {property.isAvailable ? "Available" : "Occupied"}
@@ -41,7 +41,10 @@ export function PropertyCard({ property }: PropertyCardProps) {
                 {property.category.name}
               </p>
               <h3 className="mt-1 text-lg font-semibold tracking-tight">
-                <Link href={`/properties/${property.id}`}>
+                <Link
+                  href={`/properties/${property.id}`}
+                  className="decoration-amber-500 decoration-2 underline-offset-4 group-hover:underline"
+                >
                   {property.title}
                 </Link>
               </h3>
@@ -71,10 +74,24 @@ export function PropertyCard({ property }: PropertyCardProps) {
           </div>
 
           <div className="mt-auto pt-4">
-            <span className="text-xl font-semibold text-amber-600 dark:text-amber-400">
-              ৳{taka.format(property.rent)}
-            </span>
-            <span className="text-xs text-muted-foreground"> /month</span>
+            <div>
+              <span className="text-xl font-semibold text-amber-600 dark:text-amber-400">
+                ৳{taka.format(property.rent)}
+              </span>
+              <span className="text-xs text-muted-foreground"> /month</span>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-4 w-full transition-colors group-hover:border-amber-500 group-hover:bg-amber-500 group-hover:text-slate-950"
+              asChild
+            >
+              <Link href={`/properties/${property.id}`}>
+                View details
+                <ArrowUpRight className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </Link>
+            </Button>
           </div>
         </div>
       </div>

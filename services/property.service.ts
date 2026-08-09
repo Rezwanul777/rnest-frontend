@@ -20,6 +20,7 @@ type ApiPropertyListData = {
 }
 
 const PROPERTY_PLACEHOLDER = "/property-placeholder.svg"
+const FEATURED_PROPERTY_LIMIT = "3"
 
 function toNumber(value: number | string | null | undefined) {
   if (value === null || value === undefined) return null
@@ -89,7 +90,7 @@ export async function getFeaturedProperties(): Promise<Property[]> {
 export async function getFeaturedPropertyData(): Promise<PropertyListData> {
   return getProperties({
     page: "1",
-    limit: "6",
+    limit: FEATURED_PROPERTY_LIMIT,
     sortBy: "createdAt",
     sortOrder: "desc",
   })

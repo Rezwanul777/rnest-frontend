@@ -3,6 +3,7 @@ import { ArrowRight, Building2 } from "lucide-react"
 
 import { PropertyCard } from "@/components/home/property-card"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import type { Property } from "@/types/property"
 
 type FeaturedPropertiesProps = {
@@ -38,7 +39,14 @@ export function FeaturedProperties({ properties }: FeaturedPropertiesProps) {
       </div>
 
       {properties.length > 0 ? (
-        <div className="mt-8 grid gap-5 xl:grid-cols-3">
+        <div
+          className={cn(
+            "mt-8 grid gap-5",
+            properties.length === 1 && "mx-auto max-w-2xl",
+            properties.length === 2 && "lg:grid-cols-2",
+            properties.length >= 3 && "lg:grid-cols-2 xl:grid-cols-3"
+          )}
+        >
           {properties.map((property) => (
             <PropertyCard key={property.id} property={property} />
           ))}
