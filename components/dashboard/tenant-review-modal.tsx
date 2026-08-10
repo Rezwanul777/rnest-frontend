@@ -14,19 +14,19 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
-import { submitPropertyReview, ReviewApiError } from "@/services/review.service"
+import { ReviewApiError, submitReview } from "@/services/review.service"
 
 type TenantReviewModalProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  propertyId: string
+  rentalAgreementId: string
   propertyTitle: string
 }
 
 export function TenantReviewModal({
   open,
   onOpenChange,
-  propertyId,
+  rentalAgreementId,
   propertyTitle,
 }: TenantReviewModalProps) {
   const [rating, setRating] = React.useState(5)
@@ -43,8 +43,7 @@ export function TenantReviewModal({
 
     setIsSubmitting(true)
     try {
-      await submitPropertyReview({
-        propertyId,
+      await submitReview(rentalAgreementId, {
         rating,
         comment: comment.trim(),
       })
@@ -73,7 +72,9 @@ export function TenantReviewModal({
         <DialogHeader>
           <DialogTitle>Leave a Property Review</DialogTitle>
           <DialogDescription>
-            Share your experience living at <span className="font-medium text-foreground">{propertyTitle}</span>.
+            Share your experience living at{" "}
+            <span className="font-medium text-foreground">{propertyTitle}</span>
+            .
           </DialogDescription>
         </DialogHeader>
 
@@ -110,7 +111,9 @@ export function TenantReviewModal({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Your Review & Comments</label>
+            <label className="text-sm font-medium">
+              Your Review & Comments
+            </label>
             <Textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -131,7 +134,8 @@ export function TenantReviewModal({
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <LoaderCircle className="mr-2 size-4 animate-spin" /> Submitting...
+                  <LoaderCircle className="mr-2 size-4 animate-spin" />{" "}
+                  Submitting...
                 </>
               ) : (
                 "Submit Review"
