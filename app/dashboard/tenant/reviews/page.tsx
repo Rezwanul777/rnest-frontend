@@ -8,9 +8,21 @@ export const metadata: Metadata = {
   title: "My reviews",
 }
 
-export default async function TenantReviewsPage() {
+type TenantReviewsPageProps = {
+  searchParams: Promise<{ agreementId?: string }>
+}
+
+export default async function TenantReviewsPage({
+  searchParams,
+}: TenantReviewsPageProps) {
   await requireRole("TENANT")
+  const { agreementId } = await searchParams
   const agreements = await getTenantReviewAgreements()
 
-  return <TenantReviewList agreements={agreements} />
+  return (
+    <TenantReviewList
+      agreements={agreements}
+      selectedAgreementId={agreementId}
+    />
+  )
 }

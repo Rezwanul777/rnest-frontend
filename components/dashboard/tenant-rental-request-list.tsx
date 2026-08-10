@@ -10,7 +10,6 @@ import {
   Star,
 } from "lucide-react"
 
-import { CompleteRentalDialog } from "@/components/dashboard/complete-rental-dialog"
 import { RentalAgreementStatusBadge } from "@/components/dashboard/rental-agreement-status-badge"
 import { RentalRequestStatusBadge } from "@/components/dashboard/rental-request-status-badge"
 import { Badge } from "@/components/ui/badge"
@@ -54,12 +53,6 @@ function formatDate(value: string) {
   return dateFormatter.format(new Date(value))
 }
 
-function hasLeaseEnded(leaseEndDate: string) {
-  const timestamp = new Date(leaseEndDate).getTime()
-
-  return Number.isFinite(timestamp) && timestamp <= Date.now()
-}
-
 function createPageHref(page: number, status?: RentalRequestStatus) {
   const params = new URLSearchParams()
   if (page > 1) params.set("page", String(page))
@@ -97,35 +90,25 @@ function RequestAction({ request }: { request: RentalRequest }) {
       )
     }
 
-    if (request.rentalAgreement?.status === "ACTIVE") {
-      if (!request.rentalAgreement.leaseEndDate) {
+    if (
+      request.rentalAgreement?.status === "ACTIVE" ||
+      request.rentalAgreement?.status === "COMPLETED"
+    ) {
+      if (request.rentalAgreement.review) {
         return (
-          <span className="text-xs text-muted-foreground">
-            Lease end date unavailable
-          </span>
+          <Button size="sm" variant="outline" asChild>
+            <Link href="/dashboard/tenant/reviews">
+              <Star /> View review
+            </Link>
+          </Button>
         )
       }
 
-      if (!hasLeaseEnded(request.rentalAgreement.leaseEndDate)) {
-        return (
-          <span className="text-xs text-muted-foreground">
-            Complete after {formatDate(request.rentalAgreement.leaseEndDate)}
-          </span>
-        )
-      }
-
-      return (
-        <CompleteRentalDialog
-          rentalAgreementId={request.rentalAgreement.id}
-          propertyTitle={request.property.title}
-        />
-      )
-    }
-
-    if (request.rentalAgreement?.status === "COMPLETED") {
       return (
         <Button size="sm" variant="outline" asChild>
-          <Link href="/dashboard/tenant/reviews">
+          <Link
+            href={`/dashboard/tenant/reviews?agreementId=${request.rentalAgreement.id}`}
+          >
             <Star /> Leave review
           </Link>
         </Button>

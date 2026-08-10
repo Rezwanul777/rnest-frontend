@@ -18,12 +18,12 @@ https://rnest-backend.vercel.app/api
 | `/auth/login`                              | `POST /auth/login`                                                                   | Login, role retrieval, and frontend session cookie  |
 | `/dashboard/*`                             | `GET /auth/me`                                                                       | Verify the HttpOnly-cookie session and current role |
 | `/dashboard/tenant/requests`               | `GET /rental-requests`                                                               | Tenant request history, filters, and pagination     |
-| `Tenant Complete rental action`            | `PATCH /rental-agreements/:agreementId/update`                                       | Change an owned active agreement to completed       |
 | `/dashboard/tenant`                        | `GET /rental-requests`, `GET /rental-agreements`, `GET /payments`                    | Real request, active-rental, and payment overview   |
 | `/dashboard/tenant/requests/[id]/pay`      | `POST /payments/rental-agreements/:agreementId/checkout`                             | Create a real Stripe Checkout Session               |
 | `/dashboard/tenant/payments`               | `GET /payments`                                                                      | Tenant-scoped payment history, filters, pagination  |
 | `/dashboard/tenant/reviews`                | `GET /rental-agreements`, `POST /reviews/:rentalAgreementId`                         | Review eligible rentals and submit tenant feedback  |
-| `/payment/success`, `/payment/cancel`      | Stripe redirect URLs                                                                 | Display the checkout outcome and next action        |
+| `/payment/success`                         | `GET /payments/session/:sessionId`                                                   | Verify webhook-confirmed payment and unlock review  |
+| `/payment/cancel`                          | Stripe cancel redirect                                                               | Display cancellation and safe retry navigation      |
 | `/dashboard/admin`                         | `GET /admin/users`, `GET /admin/properties`, `GET /rental-requests`, `GET /payments` | Global platform health overview                     |
 | `/dashboard/admin/users`                   | `GET /admin/users`, `PATCH /admin/users/:userId`                                     | Search, filter, paginate, ban, and unban users      |
 | `/dashboard/admin/properties`              | `GET /admin/properties`, `PATCH /admin/properties/:propertyId/availability`          | Inspect, search, filter, hide, and publish listings |
@@ -84,12 +84,10 @@ than a rental-request ID.
 The tenant request table presents a combined rental lifecycle. Request-level
 PENDING, APPROVED, and REJECTED states use orange, blue, and red badges;
 agreement-level ACTIVE and COMPLETED states replace the approved badge with
-green and gray badges. APPROVED plus PENDING_PAYMENT shows Pay now, ACTIVE shows
-a confirmed Complete rental action, and COMPLETED or TERMINATED links to the
-review workspace. Completion is sent through a same-origin protected Route
-Handler to `PATCH /rental-agreements/:agreementId/update`. The backend accepts
-reviews only for completed or terminated agreements, so the UI does not expose
-an invalid review action while a rental is active.
+green and gray badges. APPROVED plus PENDING_PAYMENT shows Pay now. After the
+Stripe webhook confirms payment, ACTIVE shows Leave review as required by the
+assignment journey. COMPLETED remains reviewable, while terminated or cancelled
+agreements do not expose the review action. Existing reviews show View review.
 
 The tenant overview aggregates only tenant-scoped backend data. Request totals
 and recent activity come from rental requests, payable and active rentals come
@@ -101,9 +99,11 @@ agreement and creates checkout through a same-origin Route Handler. That handler
 reads the HttpOnly access-token cookie and forwards only the agreement ID to the
 backend. The browser receives Stripe's HTTPS `checkoutUrl` and redirects there;
 no Stripe secret or payment amount exists in frontend code. The success page
-does not mark a payment as paid from URL parameters—the backend Stripe webhook
-remains authoritative for payment and agreement status. The cancel page keeps
-the agreement pending so the tenant can retry.
+does not mark a payment as paid from URL parameters. It polls the protected
+`GET /payments/session/:sessionId` endpoint, and the review form appears on the
+success page only after the backend returns `PAID` with an ACTIVE or COMPLETED
+agreement. The Stripe webhook remains authoritative for payment and agreement
+status. The cancel page keeps the agreement pending so the tenant can retry.
 
 The tenant payment-history page sends `page`, `limit`, `status`, `sortBy`, and
 `sortOrder` to `GET /payments`. The authenticated backend scope restricts the
@@ -111,13 +111,13 @@ result to the signed-in tenant's rental agreements. The table displays only
 real payment fields returned by the API and includes all backend statuses:
 `PENDING`, `PROCESSING`, `PAID`, `FAILED`, `REFUNDED`, and `CANCELLED`.
 
-The tenant review page reads tenant-scoped `COMPLETED` and `TERMINATED` rental
+The tenant review page reads tenant-scoped `ACTIVE` and `COMPLETED` rental
 agreements, including each agreement's optional `review` relation. A review is
 submitted through a same-origin Route Handler to
 `POST /reviews/:rentalAgreementId`. React Hook Form and Zod validate the 1–5
 rating and optional comment, while backend field errors appear inline and in a
-toast. The backend remains authoritative for agreement ownership, reviewable
-status, and the one-review-per-agreement rule.
+toast. The backend verifies agreement ownership, ACTIVE or COMPLETED status, a
+real `PAID` payment, and the one-review-per-agreement rule.
 
 The admin overview performs parallel server-side authenticated requests. User
 and property totals come from the admin endpoints, pending and recent activity

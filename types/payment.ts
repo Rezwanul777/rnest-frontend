@@ -17,6 +17,9 @@ export type Payment = {
   rentalAgreement?: {
     id: string
     status: RentalAgreementStatus
+    review?: {
+      id: string
+    } | null
     tenant: {
       id: string
       name: string

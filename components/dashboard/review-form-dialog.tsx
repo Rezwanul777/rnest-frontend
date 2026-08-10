@@ -25,6 +25,8 @@ import { ReviewApiError, submitReview } from "@/services/review.service"
 type ReviewFormDialogProps = {
   rentalAgreementId: string
   propertyTitle: string
+  defaultOpen?: boolean
+  onSubmitted?: () => void
 }
 
 function getFieldName(field?: string, path?: string) {
@@ -38,9 +40,11 @@ function getFieldName(field?: string, path?: string) {
 export function ReviewFormDialog({
   rentalAgreementId,
   propertyTitle,
+  defaultOpen = false,
+  onSubmitted,
 }: ReviewFormDialogProps) {
   const router = useRouter()
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(defaultOpen)
   const {
     control,
     register,
@@ -71,6 +75,7 @@ export function ReviewFormDialog({
       })
       reset()
       setOpen(false)
+      onSubmitted?.()
       router.refresh()
     } catch (error) {
       if (error instanceof ReviewApiError) {
@@ -119,7 +124,7 @@ export function ReviewFormDialog({
           <DialogTitle>Review your rental</DialogTitle>
           <DialogDescription>
             Share your experience at {propertyTitle}. One review is allowed per
-            completed rental agreement.
+            successfully paid rental agreement.
           </DialogDescription>
         </DialogHeader>
 

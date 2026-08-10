@@ -72,12 +72,12 @@ async function getAllTenantAgreementsByStatus(status: RentalAgreementStatus) {
 }
 
 export async function getTenantReviewAgreements() {
-  const [completed, terminated] = await Promise.all([
+  const [active, completed] = await Promise.all([
+    getAllTenantAgreementsByStatus("ACTIVE"),
     getAllTenantAgreementsByStatus("COMPLETED"),
-    getAllTenantAgreementsByStatus("TERMINATED"),
   ])
 
-  return [...completed, ...terminated].sort(
+  return [...active, ...completed].sort(
     (first, second) =>
       new Date(second.updatedAt).getTime() - new Date(first.updatedAt).getTime()
   )

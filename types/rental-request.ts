@@ -21,6 +21,9 @@ export type RentalAgreementSummary = {
   id: string
   status: RentalAgreementStatus
   leaseEndDate?: string | null
+  review?: {
+    id: string
+  } | null
 }
 
 export type SubmitRentalRequestPayload = {

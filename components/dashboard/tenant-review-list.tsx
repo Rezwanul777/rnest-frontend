@@ -15,6 +15,7 @@ const dateFormatter = new Intl.DateTimeFormat("en-BD", {
 
 type TenantReviewListProps = {
   agreements: RentalAgreement[]
+  selectedAgreementId?: string
 }
 
 function formatDate(value: string | null) {
@@ -39,7 +40,10 @@ function ReadonlyStars({ rating }: { rating: number }) {
   )
 }
 
-export function TenantReviewList({ agreements }: TenantReviewListProps) {
+export function TenantReviewList({
+  agreements,
+  selectedAgreementId,
+}: TenantReviewListProps) {
   const submittedCount = agreements.filter(
     (agreement) => agreement.review
   ).length
@@ -54,8 +58,8 @@ export function TenantReviewList({ agreements }: TenantReviewListProps) {
             My reviews
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Review completed or ended rentals and keep track of feedback you
-            have already submitted.
+            Review successfully paid rentals and keep track of feedback you have
+            already submitted.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -77,8 +81,8 @@ export function TenantReviewList({ agreements }: TenantReviewListProps) {
             No rentals are ready for review
           </h2>
           <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">
-            When an active rental is completed or terminated, it will appear
-            here and you can submit one review.
+            After Stripe confirms a payment, the active rental will appear here
+            and you can submit one review.
           </p>
         </Card>
       ) : (
@@ -126,6 +130,9 @@ export function TenantReviewList({ agreements }: TenantReviewListProps) {
                   <ReviewFormDialog
                     rentalAgreementId={agreement.id}
                     propertyTitle={agreement.property.title}
+                    defaultOpen={
+                      selectedAgreementId === agreement.id && !agreement.review
+                    }
                   />
                 </div>
               )}
