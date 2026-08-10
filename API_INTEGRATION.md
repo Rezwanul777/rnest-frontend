@@ -10,6 +10,7 @@ https://rnest-backend.vercel.app/api
 | ------------------------------------------ | ------------------------------------------------------------------------------------ | --------------------------------------------------- |
 | `/` · `FeaturedProperties`                 | `GET /properties?limit=3&sortBy=createdAt&sortOrder=desc`                            | Latest three available properties                   |
 | `/` · `HeroSection`                        | `GET /categories`                                                                    | Real property-type options                          |
+| `/#how-it-works` · `HowItWorks`            | Static assignment flow                                                               | Explain tenant, landlord, payment, and moderation   |
 | `/properties`                              | `GET /properties`                                                                    | Backend search, filtering, sorting, and pagination  |
 | `/properties`                              | `GET /categories`                                                                    | Category filter options                             |
 | `/properties/[id]`                         | `GET /properties/:id`                                                                | Property details                                    |
@@ -55,6 +56,13 @@ catalog requests six records per page. Because the backend PUBLIC scope enforces
 counts: approving a rental makes that property unavailable and naturally
 reduces the public total. When only one or two real listings remain, the
 homepage grid expands those cards to avoid an awkward empty third column.
+
+The homepage `HowItWorks` section mirrors the assignment journeys without mock
+records or an unnecessary API request. It explains the tenant path from browse,
+request, landlord approval, and Stripe payment through verified review; the
+landlord path covers listing, incoming requests, approve/reject actions, tenant
+management, and confirmed earnings. Its trust strip also documents role-based
+route protection, webhook-authoritative payments, and admin moderation.
 
 All requests pass through `services/api-client.ts`. Failed API responses become
 structured `ApiError` instances and are displayed by Next.js route error

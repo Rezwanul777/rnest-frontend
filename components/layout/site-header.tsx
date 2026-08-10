@@ -10,7 +10,7 @@ import { getDashboardPath } from "@/lib/roles"
 import { getOptionalCurrentUser } from "@/services/session.service"
 
 const navigation = [
-  { label: "Discover", href: "/properties" },
+  { label: "Browse properties", href: "/properties" },
   { label: "How it works", href: "/#how-it-works" },
   { label: "For landlords", href: "/#for-landlords" },
 ]
@@ -68,9 +68,7 @@ export async function SiteHeader() {
                 <Link href="/auth/login">Sign in</Link>
               </Button>
               <Button size="lg" className="rounded-xl" asChild>
-                <Link href="/auth/register?role=LANDLORD">
-                  List a property
-                </Link>
+                <Link href="/auth/register?role=LANDLORD">List a property</Link>
               </Button>
             </>
           )}
@@ -122,10 +120,7 @@ export async function SiteHeader() {
                         <LayoutDashboard /> Open dashboard
                       </Link>
                     </Button>
-                    <LogoutButton
-                      variant="ghost"
-                      className="justify-start"
-                    />
+                    <LogoutButton variant="ghost" className="justify-start" />
                   </>
                 ) : (
                   <>
