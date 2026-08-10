@@ -274,6 +274,6 @@ npm run build
 
 <div align="center">
 
-Built for Assignment 5 with Next.js, TypeScript, shadcn/ui, and the RentNest API.
+Built this APP with Next.js, TypeScript, shadcn/ui, and the RentNest API.
 
 </div>
