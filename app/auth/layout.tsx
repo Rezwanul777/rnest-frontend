@@ -1,8 +1,11 @@
 import Link from "next/link"
-import { CheckCircle2, ShieldCheck, Sparkles } from "lucide-react"
+import { redirect } from "next/navigation"
+import { CheckCircle2, Sparkles } from "lucide-react"
 
 import { SiteHeader } from "@/components/layout/site-header"
 import { Badge } from "@/components/ui/badge"
+import { getDashboardPath } from "@/lib/roles"
+import { getOptionalCurrentUser } from "@/services/session.service"
 
 const benefits = [
   "Request available rental properties",
@@ -10,11 +13,17 @@ const benefits = [
   "Continue to secure Stripe payment",
 ]
 
-export default function AuthLayout({
+export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const user = await getOptionalCurrentUser()
+
+  if (user) {
+    redirect(getDashboardPath(user.role))
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />

@@ -16,6 +16,7 @@ https://rnest-backend.vercel.app/api
 | `/properties/[id]` · request modal         | `POST /rental-requests`                                                              | Tenant submits a protected rental request           |
 | `/auth/register`                           | `POST /auth/register`                                                                | Tenant or landlord account creation                 |
 | `/auth/login`                              | `POST /auth/login`                                                                   | Login, role retrieval, and frontend session cookie  |
+| `SiteHeader` on public/auth routes         | `GET /auth/me`                                                                       | Render the signed-in user and role dashboard link   |
 | `/dashboard/*`                             | `GET /auth/me`                                                                       | Verify the HttpOnly-cookie session and current role |
 | `/dashboard/tenant/requests`               | `GET /rental-requests`                                                               | Tenant request history, filters, and pagination     |
 | `/dashboard/tenant`                        | `GET /rental-requests`, `GET /rental-agreements`, `GET /payments`                    | Real request, active-rental, and payment overview   |
@@ -67,6 +68,12 @@ for the role-based dashboard integration. Next.js 16 `proxy.ts` protects all
 `/dashboard/*` routes and redirects tenant, landlord, and admin users to their
 own dashboard. Dashboard layouts also call `GET /auth/me`, so the role cookie is
 only a routing hint—the backend-authenticated user remains the security source.
+Navigating to `/` or `/properties` never signs the user out because the cookie
+has application-wide `path: "/"` scope. The public header verifies that session,
+shows the current name and role, and links back to the correct role dashboard.
+Authenticated users who open `/auth/login` or `/auth/register` are redirected to
+their own dashboard; only the explicit Sign out action clears the two frontend
+session cookies and calls the backend logout endpoint.
 
 The property request modal also uses React Hook Form and Zod. It submits through
 the same-origin `/api/rental-requests` Route Handler, which reads the HttpOnly

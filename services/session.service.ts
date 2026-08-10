@@ -29,3 +29,17 @@ export const getCurrentUser = cache(async (): Promise<AuthUser | null> => {
   const payload = (await response.json()) as ApiResponse<AuthUser>
   return payload.data ?? null
 })
+
+/**
+ * Public pages must stay available if the session API is temporarily
+ * unreachable. Protected dashboard routes continue to use getCurrentUser()
+ * through requireRole(), where verification failures belong in the route's
+ * error boundary.
+ */
+export async function getOptionalCurrentUser(): Promise<AuthUser | null> {
+  try {
+    return await getCurrentUser()
+  } catch {
+    return null
+  }
+}

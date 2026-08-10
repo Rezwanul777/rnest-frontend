@@ -6,7 +6,16 @@ import { LoaderCircle, LogOut } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
-export function LogoutButton() {
+type LogoutButtonProps = Pick<
+  React.ComponentProps<typeof Button>,
+  "className" | "size" | "variant"
+>
+
+export function LogoutButton({
+  className,
+  size,
+  variant = "outline",
+}: LogoutButtonProps = {}) {
   const router = useRouter()
   const [isPending, startTransition] = React.useTransition()
 
@@ -25,7 +34,9 @@ export function LogoutButton() {
   return (
     <Button
       type="button"
-      variant="outline"
+      variant={variant}
+      size={size}
+      className={className}
       onClick={handleLogout}
       disabled={isPending}
     >
