@@ -9,9 +9,9 @@
 [![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-Nova-111827)](https://ui.shadcn.com/)
 [![Stripe](https://img.shields.io/badge/Stripe-Checkout-635BFF?logo=stripe&logoColor=white)](https://stripe.com/)
 
-**Assignment 5 — RentNest Frontend**
+**RentNest Frontend**
 
-[Frontend Repository](https://github.com/Rezwanul777/rnest-frontend) · [Backend Repository](https://github.com/Rezwanul777/rent-nest-backend) · [Live Backend](https://rnest-backend.vercel.app)
+[Frontend Repository](https://github.com/Rezwanul777/rnest-frontend) · [Backend Repository](https://github.com/Rezwanul777/rent-nest-backend) · [Live Backend](https://rnest-backend.vercel.app) .[Live Frontend](https://rnest-frontend.vercel.app)
 
 </div>
 
@@ -31,7 +31,7 @@ All application records are loaded from the backend API; the core workflows do n
 | ------------------- | -------------------------------------------------------------------------------------------- |
 | Frontend repository | [github.com/Rezwanul777/rnest-frontend](https://github.com/Rezwanul777/rnest-frontend)       |
 | Backend repository  | [github.com/Rezwanul777/rent-nest-backend](https://github.com/Rezwanul777/rent-nest-backend) |
-| Deployed full Project    | [rnest-backend.vercel.app](https://https://rnest-frontend.vercel.app/)                                 |
+| Deployed backend Project    | [rnest-backend.vercel.app](https://https://rnest-frontend.vercel.app/)                                 |
 | API base URL        | `https://rnest-backend.vercel.app/api`                                                       |
 | API documentation   | [`API_INTEGRATION.md`](./API_INTEGRATION.md)                                                 |
 
