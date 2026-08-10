@@ -31,7 +31,7 @@ All application records are loaded from the backend API; the core workflows do n
 | ------------------- | -------------------------------------------------------------------------------------------- |
 | Frontend repository | [github.com/Rezwanul777/rnest-frontend](https://github.com/Rezwanul777/rnest-frontend)       |
 | Backend repository  | [github.com/Rezwanul777/rent-nest-backend](https://github.com/Rezwanul777/rent-nest-backend) |
-| Deployed backend    | [rnest-backend.vercel.app](https://rnest-backend.vercel.app)                                 |
+| Deployed full Project    | [rnest-backend.vercel.app](https://https://rnest-frontend.vercel.app/)                                 |
 | API base URL        | `https://rnest-backend.vercel.app/api`                                                       |
 | API documentation   | [`API_INTEGRATION.md`](./API_INTEGRATION.md)                                                 |
 
